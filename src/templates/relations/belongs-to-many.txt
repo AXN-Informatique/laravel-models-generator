@@ -1,0 +1,10 @@
+
+    /**
+     * Relation "n vers n" vers la table `{{relatedTable}}`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function {{methodName}}()
+    {
+        return $this->belongsToMany('{{relatedModel}}', '{{pivotTable}}', '{{foreignKey}}', '{{otherKey}}');
+    }

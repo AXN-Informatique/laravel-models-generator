@@ -1,0 +1,24 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Database\Eloquent\Model;
+
+class {{name}} extends Model
+{
+    /**
+     * Nom de la table qui correspond à ce modèle.
+     *
+     * @var string
+     */
+    protected $table = '{{tableName}}';
+
+    /**
+     * Liste des champs protégés contre l'assignation/modification.
+     *
+     * @var array
+     */
+    protected $guarded = ['id'];
+
+{{relations}}
+}

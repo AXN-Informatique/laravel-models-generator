@@ -1,0 +1,13 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Support\Facades\Facade;
+
+class {{name}} extends Facade
+{
+    public static function getFacadeAccessor()
+    {
+        return '{{contractNamespace}}\{{contractName}}';
+    }
+}

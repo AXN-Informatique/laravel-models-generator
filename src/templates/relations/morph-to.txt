@@ -1,0 +1,11 @@
+
+    /**
+     * Relation polymorphique inverse vers plusieurs tables
+     * (voir champ `{{methodName}}_type`).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function {{methodName}}()
+    {
+        return $this->morphTo();
+    }

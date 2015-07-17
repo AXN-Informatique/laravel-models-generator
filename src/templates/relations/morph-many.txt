@@ -1,0 +1,10 @@
+
+    /**
+     * Relation polymorphique "1 vers n" vers la table `{{relatedTable}}`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function {{methodName}}()
+    {
+        return $this->morphMany('{{relatedModel}}', '{{morphName}}');
+    }

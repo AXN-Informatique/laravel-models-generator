@@ -1,0 +1,10 @@
+
+    /**
+     * Relation "1 vers n" vers la table `{{relatedTable}}`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function {{methodName}}()
+    {
+        return $this->hasMany('{{relatedModel}}', '{{foreignKey}}');
+    }
