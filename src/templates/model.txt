@@ -1,4 +1,14 @@
 <?php
+/*
+ * NOTE IMPORTANTE !!
+ *
+ * Ce fichier a été généré par la commande "artisan models:generate"
+ * (package axn/models-generator)
+ *
+ * Vous pouvez y faire des modifications, sauf entre les tags qui entourent les
+ * relations, celles-ci étant raffraîchies à chaque lancement de la commande de
+ * génération des modèles.
+ */
 
 namespace {{namespace}};
 
