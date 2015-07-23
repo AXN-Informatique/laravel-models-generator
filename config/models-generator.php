@@ -33,6 +33,37 @@ return [
 
     /*
 	|--------------------------------------------------------------------------
+	| Groupes.
+	|--------------------------------------------------------------------------
+	|
+	| Permet de regrouper les fichiers concernés par une même thématique.
+    |
+    | Par exemple pour les tables de paramètres, on peut créer un groupe 'Params'
+    | avec l'ensemble des tables de paramètres.
+    |
+    | Ce paramètre doit être de la forme ['nom_groupe' => [liste des tables], ...].
+    | Il est possible de faire des sous-groupes avec le slash. Exemple : 'Params/Toto'.
+	|
+	*/
+    'groups' => [
+        //
+    ],
+
+    /*
+	|--------------------------------------------------------------------------
+	| Nom du groupe pour les tables pivot.
+	|--------------------------------------------------------------------------
+	|
+	| Revient au même que de créer un groupe 'Pivots' et y mettre la liste des
+    | tables du paramètre 'pivot_tables', mais ce paramètre permet justement
+    | d'éviter cette duplication. Commenter ou mettre une chaine vide si vous
+    | ne souhaitez pas mettre les tables pivot dans un groupe.
+	|
+	*/
+    //'pivot_tables_group' => 'Pivots',
+
+    /*
+	|--------------------------------------------------------------------------
 	| Noms forcés pour les classes des modèles.
 	|--------------------------------------------------------------------------
 	|

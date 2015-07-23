@@ -244,6 +244,20 @@ class Generator
         $this->driver = $driver;
         $this->tableName = $tableName;
 
+        $groups = $config->get('models-generator.groups');
+
+        if ($pivotTablesGroup = $config->get('models-generator.pivot_tables_group', '')) {
+            $groups[$pivotTablesGroup] = $config->get('models-generator.pivot_tables');
+        }
+
+        $groupDir = $this->searchGroup($tableName, $groups);
+        $groupNs = str_replace('/', '\\', $groupDir);
+
+        $modelDir = $this->mkdir($config->get('models-generator.models.dir').$groupDir);
+        $repositoryDir = $this->mkdir($config->get('models-generator.repositories.dir').$groupDir);
+        $contractDir = $this->mkdir($config->get('models-generator.contracts.dir').$groupDir);
+        $facadeDir = $this->mkdir($config->get('models-generator.facades.dir').$groupDir);
+
         if ($config->has("models-generator.forced_names.$tableName")) {
             $this->modelName = $config->get("models-generator.forced_names.$tableName");
         } else {
@@ -252,20 +266,54 @@ class Generator
             };
             $this->modelName = implode('', array_map($modelWordsFormatter, explode('_', $tableName)));
         }
-        $this->modelNamespace = $config->get('models-generator.models.ns');
-        $this->modelPath = $config->get('models-generator.models.dir').'/'.$this->modelName.'.php';
+        $this->modelNamespace = $config->get('models-generator.models.ns').$groupNs;
+        $this->modelPath = $modelDir.'/'.$this->modelName.'.php';
 
         $this->repositoryName = 'Eloquent'.$this->modelName.'Repository';
-        $this->repositoryNamespace = $config->get('models-generator.repositories.ns');
-        $this->repositoryPath = $config->get('models-generator.repositories.dir').'/'.$this->repositoryName.'.php';
+        $this->repositoryNamespace = $config->get('models-generator.repositories.ns').$groupNs;
+        $this->repositoryPath = $repositoryDir.'/'.$this->repositoryName.'.php';
 
         $this->contractName = $this->modelName.'Repository';
-        $this->contractNamespace = $config->get('models-generator.contracts.ns');
-        $this->contractPath = $config->get('models-generator.contracts.dir').'/'.$this->contractName.'.php';
+        $this->contractNamespace = $config->get('models-generator.contracts.ns').$groupNs;
+        $this->contractPath = $contractDir.'/'.$this->contractName.'.php';
 
         $this->facadeName = $this->modelName.'Facade';
-        $this->facadeNamespace = $config->get('models-generator.facades.ns');
-        $this->facadePath = $config->get('models-generator.facades.dir').'/'.$this->facadeName.'.php';
+        $this->facadeNamespace = $config->get('models-generator.facades.ns').$groupNs;
+        $this->facadePath = $facadeDir.'/'.$this->facadeName.'.php';
+    }
+
+    /**
+     * Recherche le groupe auquel a été affectée la table.
+     *
+     * @param  string $tableName
+     * @param  array  $groups
+     * @return string
+     */
+    protected function searchGroup($tableName, array $groups = [])
+    {
+        foreach ($groups as $groupName => $groupTables) {
+            if (in_array($tableName, $groupTables)) {
+                return '/'.$groupName;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Crée les sous-dossiers d'un dossier si ceux-ci n'existent pas puis retourne
+     * le chemin du dossier.
+     *
+     * @param  string $dirPath
+     * @return string
+     */
+    protected function mkdir($dirPath)
+    {
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0755, true);
+        }
+
+        return $dirPath;
     }
 
     /**
