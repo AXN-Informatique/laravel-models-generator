@@ -3,7 +3,6 @@
 namespace Axn\ModelsGenerator\Console;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Database\DatabaseManager as Db;
 use Axn\ModelsGenerator\Generator;
@@ -73,7 +72,7 @@ class GenerateCommand extends Command
 	}
 
     /**
-     * Appèle les différentes méthodes de génération du générateur.
+     * Appelle les différentes méthodes de génération du générateur.
      *
      * @param  Generator $generator
      * @return void
@@ -82,7 +81,6 @@ class GenerateCommand extends Command
     {
         // Génération/m.a.j du modèle
         if ($this->config->get('models-generator.models.generate')) {
-            //$this->comment("Model:");
             $this->info($generator->generateModel());
         }
 
@@ -90,15 +88,13 @@ class GenerateCommand extends Command
         if ($this->config->get('models-generator.repositories.generate')
             && !is_file($generator->getRepositoryPath())) {
 
-            //$this->comment("Repository:");
             $this->info($generator->generateRepository());
         }
 
-        // Génération du contract si le repository existe
+        // Génération du contrat si le repository existe
         if ($this->config->get('models-generator.contracts.generate')
             && is_file($generator->getRepositoryPath())) {
 
-            //$this->comment("Contract:");
             $this->info($generator->generateContract());
         }
 
@@ -107,20 +103,7 @@ class GenerateCommand extends Command
             && is_file($generator->getContractPath())
             && !is_file($generator->getFacadePath())) {
 
-            //$this->comment("Facade:");
             $this->info($generator->generateFacade());
         }
     }
-
-    /**
-	 * Retourne les options de la commande.
-	 *
-	 * @return array
-	 */
-	protected function getOptions()
-	{
-		return [
-			//
-		];
-	}
 }

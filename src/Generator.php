@@ -602,13 +602,15 @@ class Generator
     protected function addHasManyRelation($relatedTable, $foreignKey)
     {
         $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $methodName = lcfirst(str_plural($relatedModel));
 
         if ($relatedModel == $this->getModelName()) {
             $methodName = 'children';
         }
         elseif (preg_match('/_id_([a-z0-9_]+)$/U', $foreignKey, $m)) {
-            $methodName .= 'Via'.studly_case($m[1]);
+            $methodName = str_plural(lcfirst(studly_case($m[1])));
+        }
+        else {
+            $methodName = str_plural(lcfirst($relatedModel));
         }
 
         $this->hasManyRelations[] = [$relatedTable, $foreignKey, $methodName];
@@ -624,13 +626,15 @@ class Generator
     protected function addBelongsToRelation($relatedTable, $foreignKey)
     {
         $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $methodName = lcfirst($relatedModel);
 
         if ($relatedModel == $this->getModelName()) {
             $methodName = 'parent';
         }
         elseif (preg_match('/_id_([a-z0-9_]+)$/U', $foreignKey, $m)) {
-            $methodName .= 'Via'.studly_case($m[1]);
+            $methodName = lcfirst($relatedModel).studly_case($m[1]);
+        }
+        else {
+            $methodName = lcfirst($relatedModel);
         }
 
         $this->belongsToRelations[] = [$relatedTable, $foreignKey, $methodName];
