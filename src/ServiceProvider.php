@@ -6,25 +6,25 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
 {
-	/**
-	 * Register any application services.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
         $this->app['command.models.generate'] = $this->app->share(function($app) {
             return new Console\GenerateCommand($app['config'], $app['db']);
         });
 
         $this->commands(['command.models.generate']);
-	}
+    }
 
     /**
-	 * Bootstrap any application services.
-	 *
-	 * @return void
-	 */
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->publishes([

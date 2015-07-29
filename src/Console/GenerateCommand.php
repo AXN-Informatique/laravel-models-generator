@@ -9,19 +9,19 @@ use Axn\ModelsGenerator\Generator;
 
 class GenerateCommand extends Command
 {
-	/**
-	 * Nom de la commande.
-	 *
-	 * @var string
-	 */
-	protected $name = 'models:generate';
+    /**
+     * Nom de la commande.
+     *
+     * @var string
+     */
+    protected $name = 'models:generate';
 
-	/**
-	 * Description de la commande.
-	 *
-	 * @var string
-	 */
-	protected $description = "Generates models and repositories files.";
+    /**
+     * Description de la commande.
+     *
+     * @var string
+     */
+    protected $description = "Generates models and repositories files.";
 
     /**
      * Instance de la config Laravel.
@@ -50,13 +50,13 @@ class GenerateCommand extends Command
         parent::__construct();
     }
 
-	/**
-	 * Exécute la commande.
-	 *
-	 * @return void
-	 */
-	public function fire()
-	{
+    /**
+     * Exécute la commande.
+     *
+     * @return void
+     */
+    public function fire()
+    {
         $db = $this->db->connection();
         $driverClass = '\Axn\ModelsGenerator\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
         $driver = new $driverClass($db->getPdo());
@@ -69,7 +69,7 @@ class GenerateCommand extends Command
                 $this->callGenerationMethods($generator);
             }
         }
-	}
+    }
 
     /**
      * Appelle les différentes méthodes de génération du générateur.
