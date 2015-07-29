@@ -1,5 +1,9 @@
 # Changelog for Laravel Models Generator
 
+## 1.3.0 (2015-07-29)
+
+- Utilise à présent le nom de la FK pour nommer une relation.
+
 ## 1.2.1 (2015-07-29)
 
 - Fix du nommage incorrect des relations.
