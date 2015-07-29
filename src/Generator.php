@@ -607,7 +607,7 @@ class Generator
             $methodName = 'children';
         }
         elseif (preg_match('/_id_([a-z0-9_]+)$/U', $foreignKey, $m)) {
-            $methodName = str_plural(lcfirst(studly_case($m[1])));
+            $methodName = str_plural(lcfirst($relatedModel)).'Of'.studly_case($m[1]);
         }
         else {
             $methodName = str_plural(lcfirst($relatedModel));
@@ -631,7 +631,7 @@ class Generator
             $methodName = 'parent';
         }
         elseif (preg_match('/_id_([a-z0-9_]+)$/U', $foreignKey, $m)) {
-            $methodName = lcfirst($relatedModel).studly_case($m[1]);
+            $methodName = lcfirst(studly_case($m[1]));
         }
         else {
             $methodName = lcfirst($relatedModel);
