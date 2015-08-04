@@ -1,5 +1,9 @@
 # Changelog for Laravel Models Generator
 
+## 1.3.1 (2015-08-04)
+
+- Ajout de "->withTimestamps()" dans le template de la relation belongsToMany.
+
 ## 1.3.0 (2015-07-29)
 
 - Utilise à présent le nom de la FK pour nommer une relation.
