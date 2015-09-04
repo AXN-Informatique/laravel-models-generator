@@ -34,9 +34,7 @@ class ListCommand extends Command
             $modelsDir = $this->laravel['files']->allFiles(
                 $this->laravel['config']->get('models-generator.models.dir')
             );
-
             $modelsNames = array_map(function($x) { return basename($x, '.php'); }, $modelsDir);
-
             $rows = [];
 
             foreach ($modelsNames as $alias) {
@@ -52,9 +50,6 @@ class ListCommand extends Command
             }
 
             $this->table(['Alias', 'Concrete'], $rows);
-            echo "\n";
-
-            $this->info('Completed!');
         }
         catch (Exception $e) {
             $this->info('Exception catched:');
