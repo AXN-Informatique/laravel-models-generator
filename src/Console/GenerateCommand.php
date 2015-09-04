@@ -3,8 +3,8 @@
 namespace Axn\ModelsGenerator\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Config\Repository as Config;
-use Illuminate\Database\DatabaseManager as Db;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
 use Axn\ModelsGenerator\Generator;
 
 class GenerateCommand extends Command
@@ -21,48 +21,21 @@ class GenerateCommand extends Command
      *
      * @var string
      */
-    protected $description = "Generates models and repositories files.";
-
-    /**
-     * Instance de la config Laravel.
-     *
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * Instance du manager de base de données de Laravel.
-     *
-     * @var Db
-     */
-    protected $db;
-
-    /**
-     *
-     * @param Config $config
-     * @param Db     $db
-     */
-    public function __construct(Config $config, Db $db)
-    {
-        $this->config = $config;
-        $this->db = $db;
-
-        parent::__construct();
-    }
+    protected $description = 'Generates models/repositories files';
 
     /**
      * Exécute la commande.
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
-        $db = $this->db->connection();
+        $db = $this->laravel['db']->connection();
         $driverClass = '\Axn\ModelsGenerator\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
         $driver = new $driverClass($db->getPdo());
 
-        $generators = Generator::initGenerators($this->config, $driver);
-        $ignored = $this->config->get('models-generator.ignored_tables', []);
+        $generators = Generator::initGenerators($this->laravel['config'], $driver);
+        $ignored = $this->laravel['config']->get('models-generator.ignored_tables', []);
 
         foreach ($generators as $generator) {
             if (!in_array($generator->getTableName(), $ignored)) {
@@ -79,31 +52,57 @@ class GenerateCommand extends Command
      */
     protected function callGenerationMethods(Generator $generator)
     {
+        $config = $this->laravel['config'];
+
         // Génération/m.a.j du modèle
-        if ($this->config->get('models-generator.models.generate')) {
+        if ($config->get('models-generator.models.generate')) {
             $this->info($generator->generateModel());
         }
 
         // Génération du repository s'il n'existe pas
-        if ($this->config->get('models-generator.repositories.generate')
+        if ($config->get('models-generator.repositories.generate')
             && !is_file($generator->getRepositoryPath())) {
 
             $this->info($generator->generateRepository());
         }
 
         // Génération du contrat si le repository existe
-        if ($this->config->get('models-generator.contracts.generate')
+        if ($config->get('models-generator.contracts.generate')
             && is_file($generator->getRepositoryPath())) {
 
             $this->info($generator->generateContract());
         }
 
         // Génération de la façade si celle-ci n'existe pas déjà et si le contrat existe
-        if ($this->config->get('models-generator.facades.generate')
+        if ($config->get('models-generator.facades.generate')
             && is_file($generator->getContractPath())
             && !is_file($generator->getFacadePath())) {
 
             $this->info($generator->generateFacade());
         }
     }
+
+    /**
+	 * Get the console command arguments.
+	 *
+	 * @return array
+	 */
+	protected function getArguments()
+	{
+		return [
+			//['example', InputArgument::REQUIRED, 'An example argument.'],
+		];
+	}
+
+	/**
+	 * Get the console command options.
+	 *
+	 * @return array
+	 */
+	protected function getOptions()
+	{
+		return [
+			//['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
+		];
+	}
 }

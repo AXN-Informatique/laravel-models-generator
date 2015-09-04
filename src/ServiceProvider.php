@@ -13,11 +13,18 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->app['command.models.generate'] = $this->app->share(function($app) {
-            return new Console\GenerateCommand($app['config'], $app['db']);
+        $this->app['command.models.generate'] = $this->app->share(function() {
+            return new Console\GenerateCommand;
         });
 
-        $this->commands(['command.models.generate']);
+        $this->app['command.models.list'] = $this->app->share(function() {
+            return new Console\ListCommand;
+        });
+
+        $this->commands([
+            'command.models.generate',
+            'command.models.list'
+        ]);
     }
 
     /**
@@ -39,6 +46,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function provides()
     {
-        return ['command.models.generate'];
+        return [
+            'command.models.generate',
+            'command.models.list'
+        ];
     }
 }
