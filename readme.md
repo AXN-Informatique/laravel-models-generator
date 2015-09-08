@@ -11,7 +11,7 @@ Inclure le package avec Composer :
 composer require axn/laravel-models-generator
 ```
 
-Ajouter le service provider au tableau des providers dans config/app.php :
+Ajouter le service provider au tableau des providers dans `config/app.php` :
 
 ```
 'Axn\ModelsGenerator\ServiceProvider',
@@ -30,13 +30,13 @@ différents répertoires, tables pivot, noms forcés des modèles, etc.).
 
 ### Commande "generate"
 
-Lance la génération des modèles et repositories, utiliser la commande :
+Lance la génération des modèles et repositories :
 
 ```
 php artisan models:generate
 ```
 
-Il est possible de désactiver des générations via le paramètre "generate" dans la
+Il est possible de désactiver des générations via le paramètre `generate` dans la
 config pour chacun des types de fichiers (modèles, repositories, contrats et façades).
 Exemple si l'on ne souhaite pas générer les façades :
 
