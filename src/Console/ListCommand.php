@@ -2,7 +2,7 @@
 
 namespace Axn\ModelsGenerator\Console;
 
-use Exception;
+use Exception, ReflectionClass;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,29 +31,38 @@ class ListCommand extends Command
 	public function handle()
 	{
         try {
-            $modelsDir = $this->laravel['files']->allFiles(
+            $modelsFiles = $this->laravel['files']->allFiles(
                 $this->laravel['config']->get('models-generator.models.dir')
             );
-            $modelsNames = array_map(function($x) { return basename($x, '.php'); }, $modelsDir);
+            $modelsNs = $this->laravel['config']->get('models-generator.models.ns');
             $rows = [];
 
-            foreach ($modelsNames as $alias) {
-                if (!class_exists($alias)) {
-                    throw new Exception("Cannot call $alias.");
+            foreach ($modelsFiles as $file) {
+                $name  = $file->getBasename('.php');
+                $ns    = $modelsNs.($file->getRelativePath() ? '\\'.str_replace('/', '\\', $file->getRelativePath()) : '');
+                $class = $ns.'\\'.$name;
+
+                if (!(new ReflectionClass($class))->isInstantiable()) {
+                    $this->line('<info>Note:</info> '.$class.' ignored (not instantiable)');
+                    continue;
                 }
-                elseif (!method_exists($alias, 'getFacadeRoot')) {
-                    throw new Exception("$alias is not a facade alias.");
+
+                if (!class_exists($name)) {
+                    throw new Exception("Cannot call $name.");
+                }
+                elseif (!method_exists($name, 'getFacadeRoot')) {
+                    throw new Exception("$name is not a facade alias.");
                 }
                 else {
-                    $rows[] = [$alias, get_class($alias::getFacadeRoot())];
+                    $rows[] = [$name, get_class($name::getFacadeRoot())];
                 }
             }
 
             $this->table(['Alias', 'Concrete'], $rows);
         }
         catch (Exception $e) {
-            $this->info('Exception catched:');
-            $this->comment($e->getMessage());
+            $this->error('Exception catched:');
+            $this->line($e->getMessage());
         }
 	}
 

@@ -56,21 +56,33 @@ class GenerateCommand extends Command
 
         // Génération/m.a.j du modèle
         if ($config->get('models-generator.models.generate')) {
-            $this->info($generator->generateModel());
+            if ($generator->generateModel($updated)) {
+                $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
+            } else {
+                $this->error("Error while writing model ".$generator->getModelName());
+            }
         }
 
         // Génération du repository s'il n'existe pas
         if ($config->get('models-generator.repositories.generate')
             && !is_file($generator->getRepositoryPath())) {
 
-            $this->info($generator->generateRepository());
+            if ($generator->generateRepository()) {
+                $this->line("Repository <info>".$generator->getRepositoryName()."</info> generated");
+            } else {
+                $this->error("Error while writing repository ".$generator->getRepositoryName());
+            }
         }
 
         // Génération du contrat si le repository existe
         if ($config->get('models-generator.contracts.generate')
             && is_file($generator->getRepositoryPath())) {
 
-            $this->info($generator->generateContract());
+            if ($generator->generateContract()) {
+                $this->line("Contract <info>".$generator->getContractName()."</info> generated");
+            } else {
+                $this->error("Error while writing contract ".$generator->getContractName());
+            }
         }
 
         // Génération de la façade si celle-ci n'existe pas déjà et si le contrat existe
@@ -78,7 +90,11 @@ class GenerateCommand extends Command
             && is_file($generator->getContractPath())
             && !is_file($generator->getFacadePath())) {
 
-            $this->info($generator->generateFacade());
+            if ($generator->generateFacade()) {
+                $this->line("Facade <info>".$generator->getFacadeName()."</info> generated");
+            } else {
+                $this->error("Error while writing facade ".$generator->getFacadeName());
+            }
         }
     }
 

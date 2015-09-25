@@ -459,9 +459,10 @@ class Generator
     /**
      * Génère le fichier du modèle.
      *
-     * @return string
+     * @param  boolean &$updated
+     * @return boolean
      */
-    public function generateModel()
+    public function generateModel(&$updated = false)
     {
         $path = $this->getModelPath();
 
@@ -474,34 +475,25 @@ class Generator
             $updated = true;
         } else {
             $content = $this->getModelContent();
-            $updated = false;
         }
 
-        if (@file_put_contents($path, $content)) {
-            return "Model ".$this->getModelName()." ".($updated ? "updated" : "generated");
-        } else {
-            return "Error while writing model ".$this->getModelName();
-        }
+        return @file_put_contents($path, $content) !== false;
     }
 
     /**
      * Génère le fichier du repository.
      *
-     * @return string
+     * @return boolean
      */
     public function generateRepository()
     {
-        if (@file_put_contents($this->getRepositoryPath(), $this->getRepositoryContent())) {
-            return "Repository ".$this->getRepositoryName()." generated";
-        } else {
-            return "Error while writing repository ".$this->getRepositoryName();
-        }
+        return @file_put_contents($this->getRepositoryPath(), $this->getRepositoryContent()) !== false;
     }
 
     /**
      * Génère le fichier du contrat.
      *
-     * @return string
+     * @return boolean
      */
     public function generateContract()
     {
@@ -509,25 +501,17 @@ class Generator
         // lors de l'utilisation de la réflection sur le repository
         @file_put_contents($this->getContractPath(), $this->getContractContent(false));
 
-        if (@file_put_contents($this->getContractPath(), $this->getContractContent())) {
-            return "Contract ".$this->getContractName()." generated";
-        } else {
-            return "Error while writing contract ".$this->getContractName();
-        }
+        return @file_put_contents($this->getContractPath(), $this->getContractContent()) !== false;
     }
 
     /**
      * Génère le fichier de la façade.
      *
-     * @return string
+     * @return boolean
      */
     public function generateFacade()
     {
-        if (@file_put_contents($this->getFacadePath(), $this->getFacadeContent())) {
-            return "Facade ".$this->getFacadeName()." generated";
-        } else {
-            return "Error while writing facade ".$this->getFacadeName();
-        }
+        return @file_put_contents($this->getFacadePath(), $this->getFacadeContent()) !== false;
     }
 
     /**
