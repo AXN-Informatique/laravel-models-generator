@@ -26,13 +26,4 @@ interface Driver
      * @return array[string]
      */
     public function getTableConstraintsInfo($tableName);
-
-    /**
-     * Récupère les modèles liés par relation polymorphique (champ [a-z]+able_type)
-     * à partir du code SQL de la création de la table.
-     *
-     * @param  string
-     * @return array[string]
-     */
-    public function getTableMorphTypes($tableName);
 }

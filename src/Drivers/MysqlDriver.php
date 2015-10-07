@@ -85,29 +85,4 @@ class MysqlDriver implements Driver
 
         return $constraintsInfo;
     }
-
-    /**
-     * Récupère les modèles liés par relation polymorphique (champ [a-z]+able_type)
-     * à partir du code SQL de la création de la table.
-     *
-     * @param  string
-     * @return array[string]
-     */
-    public function getTableMorphTypes($tableName)
-    {
-        $hasMorph = preg_match(
-            '/`([a-z]+able)_type` enum\((.+)\)/Us',
-            $this->getSqlCreateTable($tableName),
-            $matches
-        );
-
-        if (!$hasMorph) {
-            return [];
-        } else {
-            return [
-                'name'   => $matches[1],
-                'values' => explode(',', str_replace("'", '', $matches[2]))
-            ];
-        }
-    }
 }

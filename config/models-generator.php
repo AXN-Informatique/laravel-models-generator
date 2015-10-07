@@ -19,8 +19,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Liste des tables pivot. En effet, le générateur peut détecter les relations
-    | belongsTo, hasMany, morphMany et morphTo grâce aux clés étrangères, mais
-    | est incapable de deviner quand un pivot entre en jeu (belongsToMany).
+    | belongsTo et hasMany grâce aux clés étrangères, mais est incapable de deviner
+    | quand un pivot entre en jeu (belongsToMany).
     |
     | Il faut donc lui préciser ici quelles sont les tables pivot. Le générateur
     | utilisera alors les clés des relations belongsTo de la table pivot pour
@@ -28,6 +28,23 @@ return [
     |
     */
     'pivot_tables' => [
+        //
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tables polymorphiques.
+    |--------------------------------------------------------------------------
+    |
+    | Liste des tables polymorphiques avec les informations sur les relations.
+    |
+    | Exemple :
+    |   'photos' => [
+    |     'imageable' => ['staff', 'orders']
+    |   ]
+    |
+    */
+    'polymorphic_tables' => [
         //
     ],
 

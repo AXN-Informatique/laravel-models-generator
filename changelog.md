@@ -1,5 +1,10 @@
 # Changelog for Laravel Models Generator
 
+## 1.1.0.dev
+
+- Suppression de la détection automatique des relations polymorphiques.
+- Ajout d'une option de config pour définir les relations polymorphiques.
+
 ## 1.0.1 (2015-10-07)
 
 - Commande "models:list" : vérification que chaque fichier trouvé contient bien une classe modèle (= instanciable).

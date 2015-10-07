@@ -218,11 +218,13 @@ class Generator
         }
 
         foreach ($generators as $generator) {
-            $generator->createRelationsByConstraints();
-            $generator->createPolymorphicRelations();
+            $generator->createRelationsUsingConstraints();
         }
         foreach ($config->get('models-generator.pivot_tables', []) as $pivotTable) {
             static::getInstance($pivotTable)->defineAsPivot();
+        }
+        foreach ($config->get('models-generator.polymorphic_tables', []) as $polymorphicTable => $polymorphicRelations) {
+            static::getInstance($polymorphicTable)->defineAsPolymorphic($polymorphicRelations);
         }
         foreach ($generators as $generator) {
             $generator->sortRelations();
@@ -520,7 +522,7 @@ class Generator
      *
      * @return void
      */
-    protected function createRelationsByConstraints()
+    protected function createRelationsUsingConstraints()
     {
         $tableName = $this->getTableName();
         $constraintsInfo = $this->getDriver()->getTableConstraintsInfo($tableName);
@@ -532,29 +534,6 @@ class Generator
             static::getInstance($relatedTable)->addHasManyRelation($tableName, $foreignKey);
 
             $this->addBelongsToRelation($relatedTable, $foreignKey);
-        }
-    }
-
-    /**
-     * Crée les relations polymorphiques entre modèles en analysant les champs
-     * "morph type" (qui sont de type "enum" avec les noms des tables pouvant
-     * être liées).
-     *
-     * @return void
-     */
-    protected function createPolymorphicRelations()
-    {
-        $tableName = $this->getTableName();
-        $morphTypes = $this->getDriver()->getTableMorphTypes($tableName);
-
-        if (!empty($morphTypes)) {
-            foreach ($morphTypes['values'] as $relatedModel) {
-                $relatedTable = static::$tablesByModel[$relatedModel];
-
-                static::getInstance($relatedTable)->addMorphManyRelation($tableName, $morphTypes['name']);
-            }
-
-            $this->addMorphToRelation($morphTypes['name']);
         }
     }
 
@@ -692,6 +671,24 @@ class Generator
             $belongsToRelations[1][1], // foreign key
             $belongsToRelations[0][1]  // other key
         );
+    }
+
+    /**
+     * Définit la table associée à ce générateur comme étant une table polymorphique
+     * et crée les relations correspondantes.
+     *
+     * @param  array $relations
+     * @return void
+     */
+    protected function defineAsPolymorphic(array $relations)
+    {
+        foreach ($relations as $relationName => $relatedTables) {
+            foreach ($relatedTables as $relatedTable) {
+                static::getInstance($relatedTable)->addMorphManyRelation($this->getTableName(), $relationName);
+            }
+
+            $this->addMorphToRelation($relationName);
+        }
     }
 
     /**
