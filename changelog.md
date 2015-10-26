@@ -4,6 +4,7 @@
 
 - Suppression de la détection automatique des relations polymorphiques.
 - Ajout d'une option de config pour définir les relations polymorphiques.
+- Les templates des contrats et façades peuvent maintenant être surchargés.
 
 ## 1.0.1 (2015-10-07)
 
