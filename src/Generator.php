@@ -2,7 +2,7 @@
 
 namespace Axn\ModelsGenerator;
 
-use ReflectionClass, ReflectionMethod;
+use ReflectionClass;
 use Illuminate\Config\Repository as Config;
 use Axn\ModelsGenerator\Drivers\Driver;
 
@@ -942,34 +942,35 @@ class Generator
     protected function getContractMethods()
     {
         $rClass = new ReflectionClass($this->getRepositoryNamespace().'\\'.$this->getRepositoryName());
-        $rMethods = $rClass->getMethods(ReflectionMethod::IS_PUBLIC);
+        $rMethods = $rClass->getMethods();
         $methods = '';
 
         foreach ($rMethods as $rMethod) {
-            if (strpos($rMethod->getName(), '__') === 0) {
-                continue;
+            if ($rMethod->getDeclaringClass()->getName() === $rClass->getName()
+                && $rMethod->isPublic()
+                && strpos($rMethod->getName(), '__') !== 0)
+            {
+                $rParameters = $rMethod->getParameters();
+                $params = [];
+
+                foreach ($rParameters as $rParameter) {
+                    if ($rParameter->isArray()) {
+                        $type = 'array ';
+                    }
+                    elseif ($rParameterClass = $rParameter->getClass()) {
+                        $type = '\\'.$rParameterClass->getName().' ';
+                    }
+                    else {
+                        $type = '';
+                    }
+
+                    $params[] = $type.'$'.$rParameter->getName();
+                }
+
+                $methods .= ($methods !== '' ? "\n\n" : '')
+                    .'    '.$rMethod->getDocComment()."\n"
+                    .'    public function '.$rMethod->getName().'('.implode(', ', $params).');';
             }
-
-            $rParameters = $rMethod->getParameters();
-            $params = [];
-
-            foreach ($rParameters as $rParameter) {
-                if ($rParameter->isArray()) {
-                    $type = 'array ';
-                }
-                elseif ($rParameter->getClass()) {
-                    $type = '\\'.$rParameter->getClass()->getName().' ';
-                }
-                else {
-                    $type = '';
-                }
-
-                $params[] = $type.'$'.$rParameter->getName();
-            }
-
-            $methods .= ($methods !== '' ? "\n\n" : '')
-                .'    '.$rMethod->getDocComment()."\n"
-                .'    public function '.$rMethod->getName().'('.implode(', ', $params).');';
         }
 
         return $methods;
