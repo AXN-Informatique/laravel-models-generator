@@ -1,6 +1,6 @@
 # Changelog for Laravel Models Generator
 
-## 1.1.0.dev
+## 1.1.0 (2015-10-26)
 
 - Suppression de la détection automatique des relations polymorphiques.
 - Ajout d'une option de config pour définir les relations polymorphiques.
