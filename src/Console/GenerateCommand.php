@@ -77,7 +77,7 @@ class GenerateCommand extends Command
         }
 
         // Génération du contrat, si souhaité et si le repository existe
-        if ($config->get('models-generator.contracts.generate')
+        if ($config->get('models-generator.contracts')
             && !in_array($generator->getTableName(), $ignoredRepositories)
             && is_file($generator->getRepositoryPath()))
         {
@@ -89,7 +89,7 @@ class GenerateCommand extends Command
         }
 
         // Génération de la façade, si souhaitée, n'existe pas déjà et si le contrat existe
-        if ($config->get('models-generator.facades.generate')
+        if ($config->get('models-generator.facades')
             && !in_array($generator->getTableName(), $ignoredRepositories)
             && is_file($generator->getContractPath())
             && !is_file($generator->getFacadePath()))
