@@ -4,19 +4,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tables à ignorer.
-    |--------------------------------------------------------------------------
-    |
-    | Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
-    |
-    */
-
-    'ignored_tables' => [
-        'migrations',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Tables pivot.
     |--------------------------------------------------------------------------
     |
@@ -54,6 +41,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Noms forcés pour les classes des modèles.
+    |--------------------------------------------------------------------------
+    |
+    | Les noms des modèles sont automatiquement déterminés à partir des noms des
+    | tables (nom modèle = nom table au singulier et studly case). Il arrive
+    | cependant que le nom soit mal déterminé si celui-ci n'est pas anglais.
+    | Par exemple, le mot "sorties" singularisé devient "sorty" et non "sortie".
+    | Il est donc possible de forcer des nommages ici.
+    |
+    | Exemple :
+    |   'sorties' => 'Sortie'
+    |
+    */
+
+    'forced_names' => [
+        //
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Groupes.
     |--------------------------------------------------------------------------
     |
@@ -85,26 +92,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Noms forcés pour les classes des modèles.
-    |--------------------------------------------------------------------------
-    |
-    | Les noms des modèles sont automatiquement déterminés à partir des noms des
-    | tables (nom modèle = nom table au singulier et studly case). Il arrive
-    | cependant que le nom soit mal déterminé si celui-ci n'est pas anglais.
-    | Par exemple, le mot "sorties" singularisé devient "sorty" et non "sortie".
-    | Il est donc possible de forcer des nommages ici.
-    |
-    | Exemple :
-    |   'sorties' => 'Sortie'
-    |
-    */
-
-    'forced_names' => [
-        //
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Chemins vers le répertoire des templates.
     |--------------------------------------------------------------------------
     |
@@ -121,17 +108,19 @@ return [
     | Modèles
     |--------------------------------------------------------------------------
     |
-    | Configuration pour la génération des modèles :
-    |   - dir      : Chemin du répertoire où générer les modèles.
-    |   - ns       : Namespace des modèles.
-    |   - generate : Mettre à FALSE pour ne pas générer les modèles.
+    | Configuration pour la génération des modèles.
+    | Mettre NULL ou supprimer si génération des modèles non souhaitée.
     |
     */
 
     'models' => [
-        'dir'      => app_path('Models'),
-        'ns'       => 'App\Models',
-        'generate' => true,
+        'dir' => app_path('Models'), // Où seront générés les modèles
+        'ns'  => 'App\Models', // Namespace des modèles
+
+        // Tables à ignorer (les repositories, contrats et façades ne seront pas non plus générés)
+        'ignored_tables' => [
+            'migrations'
+        ],
     ],
 
     /*
@@ -139,17 +128,19 @@ return [
     | Repositories
     |--------------------------------------------------------------------------
     |
-    | Configuration pour la génération des implémentation Eloquent des repositories :
-    |   - dir      : Chemin du répertoire où générer les repositories.
-    |   - ns       : Namespace des repositories.
-    |   - generate : Mettre à FALSE pour ne pas générer les repositories.
+    | Configuration pour la génération des implémentation Eloquent des repositories.
+    | Mettre NULL ou supprimer si génération des repositories non souhaitée.
     |
     */
 
     'repositories' => [
-        'dir'      => app_path('Repositories'),
-        'ns'       => 'App\Repositories',
-        'generate' => true,
+        'dir' => app_path('Repositories'), // Où seront générés les repositories
+        'ns'  => 'App\Repositories', // Namespace des repositories
+
+        // Tables à ignorer (les contrats et façades ne seront pas non plus générés)
+        'ignored_tables' => [
+            //
+        ],
     ],
 
     /*
@@ -157,17 +148,14 @@ return [
     | Contrats
     |--------------------------------------------------------------------------
     |
-    | Configuration pour la génération des interfaces des repositories :
-    |   - dir      : Chemin du répertoire où générer les interfaces.
-    |   - ns       : Namespace des interfaces.
-    |   - generate : Mettre à FALSE pour ne pas générer les interfaces.
+    | Configuration pour la génération des interfaces des repositories.
+    | Mettre NULL ou supprimer si génération des contrats non souhaitée.
     |
     */
 
     'contracts' => [
-        'dir'      => app_path('Contracts/Repositories'),
-        'ns'       => 'App\Contracts\Repositories',
-        'generate' => true,
+        'dir' => app_path('Contracts/Repositories'), // Où seront générés les contrats
+        'ns'  => 'App\Contracts\Repositories', // Namespace des contrats
     ],
 
     /*
@@ -175,29 +163,14 @@ return [
     | Façades
     |--------------------------------------------------------------------------
     |
-    | Configuration pour la génération des façades des repositories :
-    |   - dir      : Chemin du répertoire où générer les façades.
-    |   - ns       : Namespace des façades.
-    |   - generate : Mettre à FALSE pour ne pas générer les façades.
+    | Configuration pour la génération des façades des repositories.
+    | Mettre NULL ou supprimer si génération des façades non souhaitée.
     |
     */
 
     'facades' => [
-        'dir'      => app_path('Facades/Repositories'),
-        'ns'       => 'App\Facades\Repositories',
-        'generate' => true,
+        'dir' => app_path('Facades/Repositories'), // Où seront générées les façades
+        'ns'  => 'App\Facades\Repositories', // Namespace des façades
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Générer des repositories pour les tables pivot ?
-    |--------------------------------------------------------------------------
-    |
-    | Mettre à TRUE si vous souhaitez que des repositories (incluant contrats
-    | et façades) soient également générés pour les tables pivots.
-    |
-    */
-
-    'generate_pivot_repositories' => false,
 
 ];

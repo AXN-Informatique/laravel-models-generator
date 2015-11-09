@@ -35,12 +35,9 @@ class GenerateCommand extends Command
         $driver = new $driverClass($db->getPdo());
 
         $generators = Generator::initGenerators($this->laravel['config'], $driver);
-        $ignored = $this->laravel['config']->get('models-generator.ignored_tables', []);
 
         foreach ($generators as $generator) {
-            if (!in_array($generator->getTableName(), $ignored)) {
-                $this->callGenerationMethods($generator);
-            }
+            $this->callGenerationMethods($generator);
         }
     }
 
@@ -53,9 +50,12 @@ class GenerateCommand extends Command
     protected function callGenerationMethods(Generator $generator)
     {
         $config = $this->laravel['config'];
+        $ignoredModels = $config->get('models-generator.models.ignored_tables', []);
+        $ignoredRepositories = array_merge($ignoredModels, $config->get('models-generator.repositories.ignored_tables', []));
 
         // Génération/m.a.j du modèle
-        if ($config->get('models-generator.models.generate'))
+        if ($config->get('models-generator.models')
+            && !in_array($generator->getTableName(), $ignoredModels))
         {
             if ($generator->generateModel($updated)) {
                 $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
@@ -64,42 +64,40 @@ class GenerateCommand extends Command
             }
         }
 
-        // Pas de repositories si pivot, sauf si souhaité dans la config
-        if (!in_array($generator->getTableName(), $config->get('models-generator.pivot_tables'))
-            || $config->get('models-generator.generate_pivot_repositories'))
+        // Génération du repository, si souhaité et s'il n'existe pas
+        if ($config->get('models-generator.repositories')
+            && !in_array($generator->getTableName(), $ignoredRepositories)
+            && !is_file($generator->getRepositoryPath()))
         {
-            // Génération du repository, si souhaité et s'il n'existe pas
-            if ($config->get('models-generator.repositories.generate')
-                && !is_file($generator->getRepositoryPath()))
-            {
-                if ($generator->generateRepository()) {
-                    $this->line("Repository <info>".$generator->getRepositoryName()."</info> generated");
-                } else {
-                    $this->error("Error while writing repository ".$generator->getRepositoryName());
-                }
+            if ($generator->generateRepository()) {
+                $this->line("Repository <info>".$generator->getRepositoryName()."</info> generated");
+            } else {
+                $this->error("Error while writing repository ".$generator->getRepositoryName());
             }
+        }
 
-            // Génération du contrat, si souhaité et si le repository existe
-            if ($config->get('models-generator.contracts.generate')
-                && is_file($generator->getRepositoryPath()))
-            {
-                if ($generator->generateContract()) {
-                    $this->line("Contract <info>".$generator->getContractName()."</info> generated");
-                } else {
-                    $this->error("Error while writing contract ".$generator->getContractName());
-                }
+        // Génération du contrat, si souhaité et si le repository existe
+        if ($config->get('models-generator.contracts.generate')
+            && !in_array($generator->getTableName(), $ignoredRepositories)
+            && is_file($generator->getRepositoryPath()))
+        {
+            if ($generator->generateContract()) {
+                $this->line("Contract <info>".$generator->getContractName()."</info> generated");
+            } else {
+                $this->error("Error while writing contract ".$generator->getContractName());
             }
+        }
 
-            // Génération de la façade, si souhaitée, n'existe pas déjà et si le contrat existe
-            if ($config->get('models-generator.facades.generate')
-                && is_file($generator->getContractPath())
-                && !is_file($generator->getFacadePath()))
-            {
-                if ($generator->generateFacade()) {
-                    $this->line("Facade <info>".$generator->getFacadeName()."</info> generated");
-                } else {
-                    $this->error("Error while writing facade ".$generator->getFacadeName());
-                }
+        // Génération de la façade, si souhaitée, n'existe pas déjà et si le contrat existe
+        if ($config->get('models-generator.facades.generate')
+            && !in_array($generator->getTableName(), $ignoredRepositories)
+            && is_file($generator->getContractPath())
+            && !is_file($generator->getFacadePath()))
+        {
+            if ($generator->generateFacade()) {
+                $this->line("Facade <info>".$generator->getFacadeName()."</info> generated");
+            } else {
+                $this->error("Error while writing facade ".$generator->getFacadeName());
             }
         }
     }
