@@ -16,14 +16,14 @@ class MysqlDriver implements Driver
     /**
      * Instance PDO pour la connexion à la base de données.
      *
-     * @var \PDO
+     * @var PDO
      */
     private $pdo;
 
     /**
      * Constructeur.
      *
-     * @param  \PDO $pdo
+     * @param  PDO $pdo
      * @return void
      */
     public function __construct(PDO $pdo)

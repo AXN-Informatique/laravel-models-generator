@@ -42,7 +42,7 @@ class Generator
      * Driver de connexion à la BDD pour la récupération d'informations
      * sur les tables.
      *
-     * @var \Axn\ModelsGenerator\Drivers\Driver
+     * @var Driver
      */
     protected $driver;
 
@@ -198,8 +198,8 @@ class Generator
     /**
      * Initialise les générateurs de chaque table.
      *
-     * @param  \Illuminate\Config\Repository      $config
-     * @param  \Axn\ModelsGenerator\Drivers\Driver $driver
+     * @param  Config $config
+     * @param  Driver $driver
      * @return array[static]
      */
     public static function initGenerators(Config $config, Driver $driver)
@@ -236,8 +236,8 @@ class Generator
     /**
      * Constructeur.
      *
-     * @param  \Illuminate\Config\Repository       $config
-     * @param  \Axn\ModelsGenerator\Drivers\Driver $driver
+     * @param  Config $config
+     * @param  Driver $driver
      * @param  string $tableName
      * @return void
      */
@@ -255,11 +255,6 @@ class Generator
         $groupDir = $this->searchGroup($tableName, $groups);
         $groupNs = str_replace('/', '\\', $groupDir);
 
-        $modelDir = $this->mkdir($config->get('models-generator.models.dir').$groupDir);
-        $repositoryDir = $this->mkdir($config->get('models-generator.repositories.dir').$groupDir);
-        $contractDir = $this->mkdir($config->get('models-generator.contracts.dir').$groupDir);
-        $facadeDir = $this->mkdir($config->get('models-generator.facades.dir').$groupDir);
-
         if ($config->has("models-generator.forced_names.$tableName")) {
             $this->modelName = $config->get("models-generator.forced_names.$tableName");
         } else {
@@ -269,59 +264,25 @@ class Generator
             $this->modelName = implode('', array_map($modelWordsFormatter, explode('_', $tableName)));
         }
         $this->modelNamespace = $config->get('models-generator.models.ns').$groupNs;
-        $this->modelPath = $modelDir.'/'.$this->modelName.'.php';
+        $this->modelPath = $config->get('models-generator.models.dir').$groupDir.'/'.$this->modelName.'.php';
 
         $this->repositoryName = 'Eloquent'.$this->modelName.'Repository';
         $this->repositoryNamespace = $config->get('models-generator.repositories.ns').$groupNs;
-        $this->repositoryPath = $repositoryDir.'/'.$this->repositoryName.'.php';
+        $this->repositoryPath = $config->get('models-generator.repositories.dir').$groupDir.'/'.$this->repositoryName.'.php';
 
         $this->contractName = $this->modelName.'Repository';
         $this->contractNamespace = $config->get('models-generator.contracts.ns').$groupNs;
-        $this->contractPath = $contractDir.'/'.$this->contractName.'.php';
+        $this->contractPath = $config->get('models-generator.contracts.dir').$groupDir.'/'.$this->contractName.'.php';
 
         $this->facadeName = $this->modelName.'Facade';
         $this->facadeNamespace = $config->get('models-generator.facades.ns').$groupNs;
-        $this->facadePath = $facadeDir.'/'.$this->facadeName.'.php';
-    }
-
-    /**
-     * Recherche le groupe auquel a été affectée la table.
-     *
-     * @param  string $tableName
-     * @param  array  $groups
-     * @return string
-     */
-    protected function searchGroup($tableName, array $groups = [])
-    {
-        foreach ($groups as $groupName => $groupTables) {
-            if (in_array($tableName, $groupTables)) {
-                return '/'.$groupName;
-            }
-        }
-
-        return '';
-    }
-
-    /**
-     * Crée les sous-dossiers d'un dossier si ceux-ci n'existent pas puis retourne
-     * le chemin du dossier.
-     *
-     * @param  string $dirPath
-     * @return string
-     */
-    protected function mkdir($dirPath)
-    {
-        if (!is_dir($dirPath)) {
-            mkdir($dirPath, 0755, true);
-        }
-
-        return $dirPath;
+        $this->facadePath = $config->get('models-generator.facades.dir').$groupDir.'/'.$this->facadeName.'.php';
     }
 
     /**
      * Retourne le driver de connexion à la BDD.
      *
-     * @return \Axn\ModelsGenerator\Drivers\Driver
+     * @return Driver
      */
     public function getDriver()
     {
@@ -476,6 +437,7 @@ class Generator
             );
             $updated = true;
         } else {
+            $this->createMissingDirs($path);
             $content = $this->getModelContent();
         }
 
@@ -489,7 +451,10 @@ class Generator
      */
     public function generateRepository()
     {
-        return @file_put_contents($this->getRepositoryPath(), $this->getRepositoryContent()) !== false;
+        $path = $this->getRepositoryPath();
+        $this->createMissingDirs($path);
+
+        return @file_put_contents($path, $this->getRepositoryContent()) !== false;
     }
 
     /**
@@ -499,11 +464,14 @@ class Generator
      */
     public function generateContract()
     {
+        $path = $this->getContractPath();
+        $this->createMissingDirs($path);
+
         // On génère au préalable une interface vierge pour éviter les erreurs
         // lors de l'utilisation de la réflection sur le repository
-        @file_put_contents($this->getContractPath(), $this->getContractContent(false));
+        @file_put_contents($path, $this->getContractContent(false));
 
-        return @file_put_contents($this->getContractPath(), $this->getContractContent()) !== false;
+        return @file_put_contents($path, $this->getContractContent()) !== false;
     }
 
     /**
@@ -513,7 +481,10 @@ class Generator
      */
     public function generateFacade()
     {
-        return @file_put_contents($this->getFacadePath(), $this->getFacadeContent()) !== false;
+        $path = $this->getFacadePath();
+        $this->createMissingDirs($path);
+
+        return @file_put_contents($path, $this->getFacadeContent()) !== false;
     }
 
     /**
@@ -1057,5 +1028,38 @@ class Generator
         }
 
         return self::$templates[$path];
+    }
+
+    /**
+     * Recherche le groupe auquel a été affectée la table.
+     *
+     * @param  string $tableName
+     * @param  array  $groups
+     * @return string
+     */
+    protected function searchGroup($tableName, array $groups = [])
+    {
+        foreach ($groups as $groupName => $groupTables) {
+            if (in_array($tableName, $groupTables)) {
+                return '/'.$groupName;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Crée les sous-dossiers d'un fichier si ceux-ci n'existent pas.
+     *
+     * @param  string $filePath
+     * @return void
+     */
+    protected function createMissingDirs($filePath)
+    {
+        $dirPath = dirname($filePath);
+
+        if (!is_dir($dirPath)) {
+            @mkdir($dirPath, 0755, true);
+        }
     }
 }

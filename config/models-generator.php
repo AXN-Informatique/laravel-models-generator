@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Tables à ignorer.
@@ -9,6 +10,7 @@ return [
     | Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
     |
     */
+
     'ignored_tables' => [
         'migrations',
     ],
@@ -27,6 +29,7 @@ return [
     | retrouver les tables à lier.
     |
     */
+
     'pivot_tables' => [
         //
     ],
@@ -44,6 +47,7 @@ return [
     |   ]
     |
     */
+
     'polymorphic_tables' => [
         //
     ],
@@ -55,13 +59,12 @@ return [
     |
     | Permet de regrouper les fichiers concernés par une même thématique.
     |
-    | Par exemple pour les tables de paramètres, on peut créer un groupe 'Params'
-    | avec l'ensemble des tables de paramètres.
-    |
-    | Ce paramètre doit être de la forme ['nom_groupe' => [liste des tables], ...].
-    | Il est possible de faire des sous-groupes avec le slash. Exemple : 'Params/Toto'.
+    | Exemple :
+    |   'Params'    => ['table1', 'table2', 'table3']
+    |   'Toto\Titi' => ['table4', 'table5']
     |
     */
+
     'groups' => [
         //
     ],
@@ -77,6 +80,7 @@ return [
     | ne souhaitez pas mettre les tables pivot dans un groupe.
     |
     */
+
     //'pivot_tables_group' => 'Pivots',
 
     /*
@@ -90,9 +94,11 @@ return [
     | Par exemple, le mot "sorties" singularisé devient "sorty" et non "sortie".
     | Il est donc possible de forcer des nommages ici.
     |
-    | Exemple : ['sorties' => 'Sortie']
+    | Exemple :
+    |   'sorties' => 'Sortie'
     |
     */
+
     'forced_names' => [
         //
     ],
@@ -107,6 +113,7 @@ return [
     | templates personnalisés à la place en les plaçant dans ce répertoire.
     |
     */
+
     'templates_dir' => base_path().'/templates',
 
     /*
@@ -120,6 +127,7 @@ return [
     |   - generate : Mettre à FALSE pour ne pas générer les modèles.
     |
     */
+
     'models' => [
         'dir'      => app_path('Models'),
         'ns'       => 'App\Models',
@@ -137,6 +145,7 @@ return [
     |   - generate : Mettre à FALSE pour ne pas générer les repositories.
     |
     */
+
     'repositories' => [
         'dir'      => app_path('Repositories'),
         'ns'       => 'App\Repositories',
@@ -154,6 +163,7 @@ return [
     |   - generate : Mettre à FALSE pour ne pas générer les interfaces.
     |
     */
+
     'contracts' => [
         'dir'      => app_path('Contracts/Repositories'),
         'ns'       => 'App\Contracts\Repositories',
@@ -171,9 +181,23 @@ return [
     |   - generate : Mettre à FALSE pour ne pas générer les façades.
     |
     */
+
     'facades' => [
         'dir'      => app_path('Facades/Repositories'),
         'ns'       => 'App\Facades\Repositories',
         'generate' => true,
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Générer des repositories pour les tables pivot ?
+    |--------------------------------------------------------------------------
+    |
+    | Mettre à TRUE si vous souhaitez que des repositories (incluant contrats
+    | et façades) soient également générés pour les tables pivots.
+    |
+    */
+
+    'generate_pivot_repositories' => false,
+
 ];

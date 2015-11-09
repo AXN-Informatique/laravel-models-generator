@@ -1,5 +1,12 @@
 # Changelog for Laravel Models Generator
 
+## 1.2.0-dev
+
+- Ajout d'une option de config pour éviter de générer les repo des pivots.
+- Création des dossiers des groupes lors de la génération et non à l'instantiation du générateur.
+- Commande "models:list" : affichage de la trace si exception catched.
+- Nettoyage commentaires.
+
 ## 1.1.0 (2015-10-26)
 
 - Suppression de la détection automatique des relations polymorphiques.

@@ -61,8 +61,8 @@ class ListCommand extends Command
             $this->table(['Alias', 'Concrete'], $rows);
         }
         catch (Exception $e) {
-            $this->error('Exception catched:');
-            $this->line($e->getMessage());
+            $this->error('Exception catched: '.$e->getMessage());
+            $this->line($e->getTraceAsString());
         }
 	}
 
