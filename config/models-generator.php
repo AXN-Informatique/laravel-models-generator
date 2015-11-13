@@ -4,6 +4,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Tables à ignorer.
+    |--------------------------------------------------------------------------
+    |
+    | Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
+    |
+    */
+
+    'ignored_tables' => [
+        'migrations',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Tables pivot.
     |--------------------------------------------------------------------------
     |
@@ -109,18 +122,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configuration pour la génération des modèles.
-    | Mettre NULL ou supprimer si génération des modèles non souhaitée.
     |
     */
 
     'models' => [
-        'dir' => app_path('Models'), // Où seront générés les modèles
-        'ns'  => 'App\Models', // Namespace des modèles
-
-        // Tables à ignorer (les repositories, contrats et façades ne seront pas non plus générés)
-        'ignored_tables' => [
-            'migrations'
-        ],
+        'dir'      => app_path('Models'), // Où seront générés les modèles
+        'ns'       => 'App\Models', // Namespace des modèles
+        'generate' => true, // Générer les modèles ?
     ],
 
     /*
@@ -129,48 +137,43 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configuration pour la génération des implémentation Eloquent des repositories.
-    | Mettre NULL ou supprimer si génération des repositories non souhaitée.
     |
     */
 
     'repositories' => [
-        'dir' => app_path('Repositories'), // Où seront générés les repositories
-        'ns'  => 'App\Repositories', // Namespace des repositories
-
-        // Tables à ignorer (les contrats et façades ne seront pas non plus générés)
-        'ignored_tables' => [
-            //
-        ],
+        'dir'      => app_path('Repositories'), // Où seront générés les repositories
+        'ns'       => 'App\Repositories', // Namespace des repositories
+        'generate' => false, // Générer les repositories ?
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Contrats
+    | Contrats des repositories
     |--------------------------------------------------------------------------
     |
     | Configuration pour la génération des interfaces des repositories.
-    | Mettre NULL ou supprimer si génération des contrats non souhaitée.
     |
     */
 
     'contracts' => [
-        'dir' => app_path('Contracts/Repositories'), // Où seront générés les contrats
-        'ns'  => 'App\Contracts\Repositories', // Namespace des contrats
+        'dir'      => app_path('Contracts/Repositories'), // Où seront générés les contrats
+        'ns'       => 'App\Contracts\Repositories', // Namespace des contrats
+        'generate' => false, // Générer les contrats ?
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Façades
+    | Façades des repositories
     |--------------------------------------------------------------------------
     |
     | Configuration pour la génération des façades des repositories.
-    | Mettre NULL ou supprimer si génération des façades non souhaitée.
     |
     */
 
     'facades' => [
-        'dir' => app_path('Facades/Repositories'), // Où seront générées les façades
-        'ns'  => 'App\Facades\Repositories', // Namespace des façades
+        'dir'      => app_path('Facades/Repositories'), // Où seront générées les façades
+        'ns'       => 'App\Facades\Repositories', // Namespace des façades
+        'generate' => false, // Générer les façades ?
     ],
 
 ];

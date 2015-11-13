@@ -37,25 +37,26 @@ class GenerateCommand extends Command
         $generators = Generator::initGenerators($this->laravel['config'], $driver);
 
         foreach ($generators as $generator) {
-            $this->callGenerationMethods($generator);
+            $this->generateFiles($generator);
         }
     }
 
     /**
-     * Appelle les différentes méthodes de génération du générateur.
+     * Lance la génération des différents fichiers à l'aide du générateur.
      *
      * @param  Generator $generator
      * @return void
      */
-    protected function callGenerationMethods(Generator $generator)
+    protected function generateFiles(Generator $generator)
     {
         $config = $this->laravel['config'];
-        $ignoredModels = $config->get('models-generator.models.ignored_tables', []);
-        $ignoredRepositories = array_merge($ignoredModels, $config->get('models-generator.repositories.ignored_tables', []));
 
-        // Génération/m.a.j du modèle
-        if ($config->get('models-generator.models')
-            && !in_array($generator->getTableName(), $ignoredModels))
+        if (in_array($generator->getTableName(), $config->get('models-generator.ignored_tables'))) {
+            return;
+        }
+
+        // Génération/m.a.j du modèle, si souhaité
+        if ($config->get('models-generator.models.generate'))
         {
             if ($generator->generateModel($updated)) {
                 $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
@@ -65,8 +66,7 @@ class GenerateCommand extends Command
         }
 
         // Génération du repository, si souhaité et s'il n'existe pas
-        if ($config->get('models-generator.repositories')
-            && !in_array($generator->getTableName(), $ignoredRepositories)
+        if ($config->get('models-generator.repositories.generate')
             && !is_file($generator->getRepositoryPath()))
         {
             if ($generator->generateRepository()) {
@@ -77,8 +77,7 @@ class GenerateCommand extends Command
         }
 
         // Génération du contrat, si souhaité et si le repository existe
-        if ($config->get('models-generator.contracts')
-            && !in_array($generator->getTableName(), $ignoredRepositories)
+        if ($config->get('models-generator.contracts.generate')
             && is_file($generator->getRepositoryPath()))
         {
             if ($generator->generateContract()) {
@@ -89,8 +88,7 @@ class GenerateCommand extends Command
         }
 
         // Génération de la façade, si souhaitée, n'existe pas déjà et si le contrat existe
-        if ($config->get('models-generator.facades')
-            && !in_array($generator->getTableName(), $ignoredRepositories)
+        if ($config->get('models-generator.facades.generate')
             && is_file($generator->getContractPath())
             && !is_file($generator->getFacadePath()))
         {

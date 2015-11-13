@@ -247,11 +247,9 @@ class Generator
         $this->tableName = $tableName;
 
         $groups = $config->get('models-generator.groups');
-
-        if ($pivotTablesGroup = $config->get('models-generator.pivot_tables_group', '')) {
+        if ($pivotTablesGroup = $config->get('models-generator.pivot_tables_group')) {
             $groups[$pivotTablesGroup] = $config->get('models-generator.pivot_tables');
         }
-
         $groupDir = $this->searchGroup($tableName, $groups);
         $groupNs = str_replace('/', '\\', $groupDir);
 

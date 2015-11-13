@@ -1,11 +1,8 @@
 # Changelog for Laravel Models Generator
 
-## 1.2.0-dev
+## 1.1.1-dev
 
-- Déplacement de l'option de config "ignored_tables" dans "models" et "repositories".
-- Suppression de l'option de config "generate" dans "models", "repositories", "contracts" et "facades".
-- Les options de config "models", "repositories", "contracts" et "facades" peuvent être mises à NULL
-  pour ne pas générer les fichiers concernés.
+- L'option de config "generate" dans "repositories", "contracts" et "facades" est à FALSE par défaut.
 - Création des dossiers des groupes lors de la génération et non à l'instantiation du générateur.
 - Commande "models:list" : affichage de la trace si exception catched.
 - Nettoyage commentaires.
