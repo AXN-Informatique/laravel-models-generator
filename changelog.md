@@ -1,6 +1,6 @@
 # Changelog for Laravel Models Generator
 
-## 1.1.1-dev
+## 1.1.1 (2015-11-23)
 
 - L'option de config "generate" dans "repositories", "contracts" et "facades" est à FALSE par défaut.
 - Création des dossiers des groupes lors de la génération et non à l'instantiation du générateur.
