@@ -17,13 +17,8 @@ class ServiceProvider extends BaseServiceProvider
             return new Console\GenerateCommand;
         });
 
-        $this->app['command.models.list'] = $this->app->share(function() {
-            return new Console\ListCommand;
-        });
-
         $this->commands([
-            'command.models.generate',
-            'command.models.list'
+            'command.models.generate'
         ]);
     }
 
@@ -36,6 +31,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/models-generator.php' => config_path('models-generator.php'),
+            __DIR__.'/../resources/stubs/' => base_path('resources/stubs/vendor/models-generator'),
         ]);
     }
 
@@ -47,8 +43,7 @@ class ServiceProvider extends BaseServiceProvider
     public function provides()
     {
         return [
-            'command.models.generate',
-            'command.models.list'
+            'command.models.generate'
         ];
     }
 }

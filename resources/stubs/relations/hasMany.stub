@@ -1,6 +1,6 @@
 
     /**
-     * Relation "1 vers n" vers la table `{{relatedTable}}`.
+     * Relation 1-n vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

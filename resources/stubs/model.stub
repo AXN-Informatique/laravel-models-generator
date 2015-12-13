@@ -1,0 +1,30 @@
+<?php
+
+namespace {{namespace}};
+
+use Illuminate\Database\Eloquent\Model;
+
+class {{name}} extends Model
+{
+    /**
+     * Nom de la table associée à ce modèle.
+     *
+     * @var string
+     */
+    protected $table = '{{tableName}}';
+
+    /**
+     * Liste des champs protégés contre l'assignation/modification.
+     *
+     * @var array
+     */
+    protected $guarded = ['id'];
+
+    //
+    // NOTE IMPORTANTE !
+    //
+    // Ne pas modifier le contenu entre ces tags car raffraîchi à chaque lancement
+    // de la commande "artisan models:generate" (axn/laravel-models-generator).
+    //
+{{relations}}
+}

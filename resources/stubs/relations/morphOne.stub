@@ -1,0 +1,10 @@
+
+    /**
+     * Relation polymorphique 1-1 vers la table `{{relatedTable}}`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function {{methodName}}()
+    {
+        return $this->morphOne('{{relatedModel}}', '{{morphName}}');
+    }

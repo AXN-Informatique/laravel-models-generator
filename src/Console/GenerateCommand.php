@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Axn\ModelsGenerator\Generator;
+use Axn\ModelsGenerator\Drivers\Driver;
 
 class GenerateCommand extends Command
 {
@@ -21,7 +22,7 @@ class GenerateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generates models/repositories files';
+    protected $description = 'Generates Eloquent models files from DB';
 
     /**
      * Exécute la commande.
@@ -30,74 +31,35 @@ class GenerateCommand extends Command
      */
     public function handle()
     {
-        $db = $this->laravel['db']->connection();
-        $driverClass = '\Axn\ModelsGenerator\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
-        $driver = new $driverClass($db->getPdo());
+        $config = $this->laravel['config'];
+        $ignoredTables = $config->get('models-generator.ignored_tables');
 
-        $generators = Generator::initGenerators($this->laravel['config'], $driver);
+        $generators = Generator::initAndGetInstances($config, $this->getDriver());
 
         foreach ($generators as $generator) {
-            $this->generateFiles($generator);
-        }
-    }
+            if (in_array($generator->getTableName(), $ignoredTables)) continue;
 
-    /**
-     * Lance la génération des différents fichiers à l'aide du générateur.
-     *
-     * @param  Generator $generator
-     * @return void
-     */
-    protected function generateFiles(Generator $generator)
-    {
-        $config = $this->laravel['config'];
-
-        if (in_array($generator->getTableName(), $config->get('models-generator.ignored_tables'))) {
-            return;
-        }
-
-        // Génération/m.a.j du modèle, si souhaité
-        if ($config->get('models-generator.models.generate'))
-        {
             if ($generator->generateModel($updated)) {
                 $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
             } else {
                 $this->error("Error while writing model ".$generator->getModelName());
             }
         }
+    }
 
-        // Génération du repository, si souhaité et s'il n'existe pas
-        if ($config->get('models-generator.repositories.generate')
-            && !is_file($generator->getRepositoryPath()))
-        {
-            if ($generator->generateRepository()) {
-                $this->line("Repository <info>".$generator->getRepositoryName()."</info> generated");
-            } else {
-                $this->error("Error while writing repository ".$generator->getRepositoryName());
-            }
-        }
+    /**
+     * Retourne une instance du driver correspondant à la connexion par défaut
+     * à la base de données.
+     *
+     * @return Driver
+     */
+    protected function getDriver()
+    {
+        $db = $this->laravel['db']->connection();
 
-        // Génération du contrat, si souhaité et si le repository existe
-        if ($config->get('models-generator.contracts.generate')
-            && is_file($generator->getRepositoryPath()))
-        {
-            if ($generator->generateContract()) {
-                $this->line("Contract <info>".$generator->getContractName()."</info> generated");
-            } else {
-                $this->error("Error while writing contract ".$generator->getContractName());
-            }
-        }
+        $driverClass = '\Axn\ModelsGenerator\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
 
-        // Génération de la façade, si souhaitée, n'existe pas déjà et si le contrat existe
-        if ($config->get('models-generator.facades.generate')
-            && is_file($generator->getContractPath())
-            && !is_file($generator->getFacadePath()))
-        {
-            if ($generator->generateFacade()) {
-                $this->line("Facade <info>".$generator->getFacadeName()."</info> generated");
-            } else {
-                $this->error("Error while writing facade ".$generator->getFacadeName());
-            }
-        }
+        return new $driverClass($db->getPdo());
     }
 
     /**

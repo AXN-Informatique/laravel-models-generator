@@ -1,6 +1,6 @@
 
     /**
-     * Relation "n vers n" vers la table `{{relatedTable}}`.
+     * Relation n-n vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

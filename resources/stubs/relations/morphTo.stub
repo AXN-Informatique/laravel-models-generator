@@ -1,7 +1,6 @@
 
     /**
-     * Relation polymorphique inverse vers plusieurs tables
-     * (voir champ `{{methodName}}_type`).
+     * Relation polymorphique inverse.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
