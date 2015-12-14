@@ -1,6 +1,6 @@
 # Laravel Models Generator
 
-Ce package permet la génération des modèles Eloquent à partir de la base de données.
+Ce package permet de générer les modèles Eloquent à partir de la base de données.
 
 ## Installation
 
@@ -16,23 +16,21 @@ Ajouter le service provider au tableau des providers dans `config/app.php` :
 'Axn\ModelsGenerator\ServiceProvider',
 ```
 
-Copier le fichier de config et les templates (stubs) du package via la commande :
+Publier la config et les templates (stubs) du package via la commande :
 
 ```
 php artisan vendor:publish
 ```
 
-Et renseigner les paramètres de config en fonction de l'application (chemins des
-différents répertoires, tables pivots, noms forcés des modèles, etc.).
+La config est publiée dans `config/models-generator.php`
+Les templates sont publiés dans `resources/stubs/vendor/models-generator/`
 
-Si nécessaire, modifier les fichiers de templates (stubs) des modèles et relations.
-**Attention dans ce cas aux tags de remplacement dans le template du modèle !**
+Modifier si nécessaire les options de config et les templates des modèles et relations.
+**Attention à ne pas toucher aux tags de remplacement dans le template du modèle !**
 
 ## Utilisation
 
-### Commande "generate"
-
-Lance la génération/MAJ des modèles :
+Lancer simplement la commande :
 
 ```
 php artisan models:generate
