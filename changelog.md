@@ -5,6 +5,7 @@
 - Abandon du support des repositories, contrats et façades.
 - Ajout du support des relations hasOne et morphOne (option de config "one_to_one_relations").
 - Ajout de la possibilité de renseigner les clés concernées par un pivot dans la config.
+- Ajout de l'extention d'Eloquent au template du modèle.
 - Option de config "polymorphic_tables" renommée "polymorphic_relations".
 - Modification de l'option de config "groups" : 'table' => 'groupe' au lieu de 'groupe' => [liste_tables]
 - Suppression de l'option de config "pivot_tables_group".

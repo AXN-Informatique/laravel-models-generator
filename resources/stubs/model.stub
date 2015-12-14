@@ -3,9 +3,12 @@
 namespace {{namespace}};
 
 use Illuminate\Database\Eloquent\Model;
+use Axn\Illuminate\Database\Eloquent\ModelTrait;
 
 class {{name}} extends Model
 {
+    use ModelTrait;
+
     /**
      * Nom de la table associée à ce modèle.
      *
