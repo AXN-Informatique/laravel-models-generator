@@ -591,7 +591,7 @@ class Generator
             $relatedNamespace = $related->getModelNamespace();
             $relatedModel = $related->getModelName();
 
-            $replace = [
+            $content .= strtr($stub, [
                 '{{relatedTable}}' => $relatedTable,
                 '{{relatedModel}}' => $relatedNamespace.'\\'.$relatedModel,
                 '{{foreignKey}}'   => $fkOrMorphName,
@@ -599,9 +599,7 @@ class Generator
                 '{{methodName}}'   => $methodName,
                 '{{pivotTable}}'   => $pivotTable,
                 '{{otherKey}}'     => $otherKey
-            ];
-
-            $content .= strtr($stub, $replace);
+            ]);
         }
 
         return $content;
