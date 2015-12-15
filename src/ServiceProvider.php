@@ -30,9 +30,12 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/models-generator.php' => config_path('models-generator.php'),
-            __DIR__.'/../resources/stubs/' => base_path('resources/stubs/vendor/models-generator'),
-        ]);
+            __DIR__.'/../config/models-generator.php' => config_path('models-generator.php')
+        ], 'config');
+
+        $this->publishes([
+            __DIR__.'/../resources/stubs/' => base_path('resources/stubs/vendor/models-generator')
+        ], 'stubs');
     }
 
     /**
