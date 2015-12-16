@@ -16,10 +16,14 @@ Ajouter le service provider au tableau des providers dans `config/app.php` :
 'Axn\ModelsGenerator\ServiceProvider',
 ```
 
-Publier la config et les templates (stubs) du package via la commande :
+Publier la config et les templates (stubs) du package via les commandes :
 
 ```
-php artisan vendor:publish
+// config
+php artisan vendor:publish --tag=config --provider=Axn\\ModelsGenerator\\ServiceProvider
+
+// stubs
+php artisan vendor:publish --tag=stubs --provider=Axn\\ModelsGenerator\\ServiceProvider
 ```
 
 La config est publiée dans `config/models-generator.php`
