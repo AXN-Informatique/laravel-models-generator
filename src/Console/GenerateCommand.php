@@ -2,6 +2,7 @@
 
 namespace Axn\ModelsGenerator\Console;
 
+use Exception;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,18 +33,19 @@ class GenerateCommand extends Command
     public function handle()
     {
         $config = $this->laravel['config'];
-        $ignoredTables = $config->get('models-generator.ignored_tables');
 
-        $generators = Generator::initAndGetInstances($config, $this->getDriver());
+        try {
+            $generators = Generator::initAndGetInstances($config, $this->getDriver());
 
-        foreach ($generators as $generator) {
-            if (in_array($generator->getTableName(), $ignoredTables)) continue;
-
-            if ($generator->generateModel($updated)) {
-                $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
-            } else {
-                $this->error("Error while writing model ".$generator->getModelName());
+            foreach ($generators as $generator) {
+                if ($generator->generateModel($updated)) {
+                    $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
+                }
             }
+        }
+        catch (Exception $e) {
+            $this->error('Exception catched: '.$e->getMessage());
+            $this->line($e->getTraceAsString());
         }
     }
 

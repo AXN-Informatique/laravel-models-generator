@@ -265,6 +265,10 @@ class Generator
      */
     public function generateModel(&$updated = false)
     {
+        $ignoredTables = $this->config->get('models-generator.ignored_tables');
+
+        if (in_array($this->getTableName(), $ignoredTables)) return false;
+
         $path = $this->getModelPath();
 
         // Si modèle déjà existant : mise à jour des relations grâces aux tags
@@ -280,7 +284,7 @@ class Generator
             $content = $this->getModelContent();
         }
 
-        return @file_put_contents($path, $content) !== false;
+        return file_put_contents($path, $content) !== false;
     }
 
     /**
@@ -689,7 +693,7 @@ class Generator
     protected function createMissingDirs($filePath)
     {
         if (!is_dir($dirPath = dirname($filePath))) {
-            @mkdir($dirPath, 0755, true);
+            mkdir($dirPath, 0755, true);
         }
     }
 }

@@ -16,6 +16,7 @@
 - Les templates sont copiés dans le dossier spécifié dans la config lors de l'exécution de la commande "vendor:publish".
 - Déplacement et renommage du dossier et des fichiers des templates.
 - Modification des commentaires dans les templates et la config.
+- Gestion des erreurs de génération avec un try/catch.
 - Refactoring/nettoyage du code.
 
 ## 1.1.1 (2015-11-23)
