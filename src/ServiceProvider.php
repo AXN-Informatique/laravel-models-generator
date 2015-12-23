@@ -31,11 +31,11 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/models-generator.php' => config_path('models-generator.php')
-        ], 'config');
+        ], 'models-generator.config');
 
         $this->publishes([
             __DIR__.'/../resources/stubs/' => base_path('resources/stubs/vendor/models-generator')
-        ], 'stubs');
+        ], 'models-generator.stubs');
     }
 
     /**

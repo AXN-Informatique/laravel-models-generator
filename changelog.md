@@ -1,6 +1,6 @@
 # Changelog for Laravel Models Generator
 
-## 2.0.0-dev
+## 2.0.0 (2015-12-23)
 
 - Abandon du support des repositories, contrats et façades.
 - Ajout du support des relations hasOne et morphOne (option de config "one_to_one_relations").
@@ -17,6 +17,7 @@
 - Déplacement et renommage du dossier et des fichiers des templates.
 - Modification des commentaires dans les templates et la config.
 - Gestion des erreurs de génération avec un try/catch.
+- Modification des tags pour la commande "vendor:publish".
 - Refactoring/nettoyage du code.
 
 ## 1.1.1 (2015-11-23)

@@ -20,10 +20,10 @@ Publier si besoin la config et les templates (stubs) du package via les commande
 
 ```
 // config
-php artisan vendor:publish --tag=config --provider=Axn\\ModelsGenerator\\ServiceProvider
+php artisan vendor:publish --tag=models-generator.config
 
 // stubs
-php artisan vendor:publish --tag=stubs --provider=Axn\\ModelsGenerator\\ServiceProvider
+php artisan vendor:publish --tag=models-generator.stubs
 ```
 
 La config est publiée dans `config/models-generator.php`
