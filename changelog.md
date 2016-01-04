@@ -1,5 +1,9 @@
 # Changelog for Laravel Models Generator
 
+## 2.0.1 (2016-01-04)
+
+- Changement du message d'information en console avec lien complet vers le modèle généré.
+
 ## 2.0.0 (2015-12-23)
 
 - Abandon du support des repositories, contrats et façades.
