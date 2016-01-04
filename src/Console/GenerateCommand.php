@@ -39,7 +39,7 @@ class GenerateCommand extends Command
 
             foreach ($generators as $generator) {
                 if ($generator->generateModel($updated)) {
-                    $this->line("Model <info>".$generator->getModelName()."</info> ".($updated ? "updated" : "generated"));
+                    $this->line('<info>Model '.($updated ? 'updated' : 'generated').':</info> '.realpath($generator->getModelPath()));
                 }
             }
         }
