@@ -163,7 +163,7 @@ class Generator
         }
 
         // Ajoute les relations n-n via les pivots renseignés dans la config
-        foreach ($config->get('models-generator.pivot_tables') as $pivotTable) {
+        foreach ($config->get('models-generator.pivot_tables', []) as $pivotTable) {
             if (is_array($pivotTable)) {
                 static::getInstance($pivotTable[0])->pivot($pivotTable[1], $pivotTable[2]);
             } else {
@@ -172,7 +172,7 @@ class Generator
         }
 
         // Ajoute les relations polymorphiques via les informations renseignées dans la config
-        foreach ($config->get('models-generator.polymorphic_relations') as $polymorphicTable => $polymorphicRelations) {
+        foreach ($config->get('models-generator.polymorphic_relations', []) as $polymorphicTable => $polymorphicRelations) {
             static::getInstance($polymorphicTable)->polymorphic($polymorphicRelations);
         }
 
@@ -198,7 +198,7 @@ class Generator
         $this->driver = $driver;
         $this->tableName = $tableName;
 
-        $group = $this->config->get("models-generator.groups.$tableName", '');
+        $group = $this->config->get("models-generator.groups.$tableName");
         $groupDir = ($group ? '/'.$group : '');
         $groupNs = str_replace('/', '\\', $groupDir);
 
@@ -265,7 +265,7 @@ class Generator
      */
     public function generateModel(&$updated = false)
     {
-        $ignoredTables = $this->config->get('models-generator.ignored_tables');
+        $ignoredTables = $this->config->get('models-generator.ignored_tables', []);
 
         if (in_array($this->getTableName(), $ignoredTables)) return false;
 

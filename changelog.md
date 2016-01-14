@@ -1,5 +1,10 @@
 # Changelog for Laravel Models Generator
 
+## 2.0.2 (2016-01-14)
+
+- Valeurs par défaut pour les récupérations des options de config.
+- Déplacement des options de config obligatoires au début du fichier de config.
+
 ## 2.0.1 (2016-01-04)
 
 - Changement du message d'information en console avec lien complet vers le modèle généré.
