@@ -1,5 +1,7 @@
 {
     "name": "axn/laravel-models-generator",
+    "homepage": "https://bitbucket.org/axn/laravel-models-generator",
+	"description": "Génération des modèles Eloquent à partir de la base de données.",
     "require": {
         "illuminate/support": "^5.0"
     },
