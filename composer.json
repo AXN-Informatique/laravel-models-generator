@@ -1,13 +1,22 @@
 {
-    "name": "axn/laravel-models-generator",
-    "homepage": "https://bitbucket.org/axn/laravel-models-generator",
-	"description": "Génération des modèles Eloquent à partir de la base de données.",
-    "require": {
-        "illuminate/support": "^5.0"
+    "name" : "axn/laravel-models-generator",
+    "description" : "Génération des modèles Eloquent à partir de la base de données.",
+    "homepage" : "https://bitbucket.org/axn/laravel-models-generator",
+    "support" : {
+        "issues" : "https://bitbucket.org/axn/laravel-models-generator/issues?status=new&status=open"
     },
-    "autoload": {
-        "psr-4": {
-            "Axn\\ModelsGenerator\\": "src/"
+    "authors" : [{
+            "name" : "AXN Informatique",
+            "email" : "developpement@axn.fr"
+        }
+    ],
+    "license" : "MIT",
+    "require" : {
+        "illuminate/support" : "^5.0"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "Axn\\ModelsGenerator\\" : "src/"
         }
     }
 }
