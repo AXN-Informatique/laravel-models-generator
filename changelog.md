@@ -1,15 +1,25 @@
-# Changelog for Laravel Models Generator
+Changelog for Laravel Models Generator
+======================================
 
-## 2.0.2 (2016-01-14)
+2.0.3 (2016-03-22)
+------------------
+
+- Source code released with the MIT license
+- Added license file
+
+2.0.2 (2016-01-14)
+------------------
 
 - Valeurs par défaut pour les récupérations des options de config.
 - Déplacement des options de config obligatoires au début du fichier de config.
 
-## 2.0.1 (2016-01-04)
+2.0.1 (2016-01-04)
+------------------
 
 - Changement du message d'information en console avec lien complet vers le modèle généré.
 
-## 2.0.0 (2015-12-23)
+2.0.0 (2015-12-23)
+------------------
 
 - Abandon du support des repositories, contrats et façades.
 - Ajout du support des relations hasOne et morphOne (option de config "one_to_one_relations").
@@ -29,24 +39,28 @@
 - Modification des tags pour la commande "vendor:publish".
 - Refactoring/nettoyage du code.
 
-## 1.1.1 (2015-11-23)
+1.1.1 (2015-11-23)
+------------------
 
 - L'option de config "generate" dans "repositories", "contracts" et "facades" est à FALSE par défaut.
 - Création des dossiers des groupes lors de la génération et non à l'instantiation du générateur.
 - Commande "models:list" : affichage de la trace si exception catched.
 - Nettoyage commentaires.
 
-## 1.1.0 (2015-10-26)
+1.1.0 (2015-10-26)
+------------------
 
 - Suppression de la détection automatique des relations polymorphiques.
 - Ajout d'une option de config pour définir les relations polymorphiques.
 - Les templates des contrats et façades peuvent maintenant être surchargés.
 
-## 1.0.1 (2015-10-07)
+1.0.1 (2015-10-07)
+------------------
 
 - Commande "models:list" : vérification que chaque fichier trouvé contient bien une classe modèle (= instanciable).
 - Changements mineurs au niveau des couleurs en console.
 
-## 1.0.0 (2015-09-08)
+1.0.0 (2015-09-08)
+------------------
 
 - First release.
