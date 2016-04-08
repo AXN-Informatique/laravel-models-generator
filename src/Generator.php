@@ -267,7 +267,9 @@ class Generator
     {
         $ignoredTables = $this->config->get('models-generator.ignored_tables', []);
 
-        if (in_array($this->getTableName(), $ignoredTables)) return false;
+        if (in_array($this->getTableName(), $ignoredTables)) {
+            return false;
+        }
 
         $path = $this->getModelPath();
 
@@ -385,8 +387,10 @@ class Generator
      */
     protected function sortRelations()
     {
-        // Tri par ordre alphabétique sur le nom de la table liée
-        $sorter = function($a, $b) { return strnatcmp($a[0], $b[0]); };
+        // Tri par ordre alphabétique sur le nom de la relation (= nom de la méthode)
+        $sorter = function($a, $b) {
+            return strnatcmp($a[2], $b[2]);
+        };
 
         usort($this->hasOneRelations, $sorter);
         usort($this->hasManyRelations, $sorter);
@@ -583,7 +587,9 @@ class Generator
     {
         $relationProperty = $type.'Relations';
 
-        if (empty($this->{$relationProperty})) return '';
+        if (empty($this->{$relationProperty})) {
+            return '';
+        }
 
         $content = '';
         $stub = $this->getRelationStub($type);
@@ -616,7 +622,9 @@ class Generator
      */
     protected function getMorphToRelationContent()
     {
-        if (empty($this->morphToRelation)) return '';
+        if (empty($this->morphToRelation)) {
+            return '';
+        }
 
         $stub = $this->getRelationStub('morphTo');
 

@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Axn\ModelsGenerator\Generator;
-use Axn\ModelsGenerator\Drivers\Driver;
 
 class GenerateCommand extends Command
 {
@@ -33,9 +32,10 @@ class GenerateCommand extends Command
     public function handle()
     {
         $config = $this->laravel['config'];
+        $driver = $this->laravel['Axn\ModelsGenerator\Drivers\Driver'];
 
         try {
-            $generators = Generator::initAndGetInstances($config, $this->getDriver());
+            $generators = Generator::initAndGetInstances($config, $driver);
 
             foreach ($generators as $generator) {
                 if ($generator->generateModel($updated)) {
@@ -47,21 +47,6 @@ class GenerateCommand extends Command
             $this->error('Exception catched: '.$e->getMessage());
             $this->line($e->getTraceAsString());
         }
-    }
-
-    /**
-     * Retourne une instance du driver correspondant à la connexion par défaut
-     * à la base de données.
-     *
-     * @return Driver
-     */
-    protected function getDriver()
-    {
-        $db = $this->laravel['db']->connection();
-
-        $driverClass = '\Axn\ModelsGenerator\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
-
-        return new $driverClass($db->getPdo());
     }
 
     /**

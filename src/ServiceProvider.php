@@ -13,6 +13,16 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+        // Driver
+        $this->app->bind(__NAMESPACE__.'\Drivers\Driver', function($app) {
+            $db = $app['db.connection'];
+
+            $driverClass = __NAMESPACE__.'\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
+
+            return new $driverClass($db->getPdo());
+        });
+
+        // Commande
         $this->app['command.models.generate'] = $this->app->share(function() {
             return new Console\GenerateCommand;
         });
@@ -46,6 +56,7 @@ class ServiceProvider extends BaseServiceProvider
     public function provides()
     {
         return [
+            __NAMESPACE__.'\Drivers\Driver',
             'command.models.generate'
         ];
     }

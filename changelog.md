@@ -1,6 +1,12 @@
 Changelog for Laravel Models Generator
 ======================================
 
+2.0.4-dev
+------------------
+
+- Ordre des méthodes des relations par nom de méthode et non par nom de table.
+- Utilisation de l'IoC pour instancier le driver.
+
 2.0.3 (2016-03-22)
 ------------------
 
