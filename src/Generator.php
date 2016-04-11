@@ -409,6 +409,10 @@ class Generator
      */
     protected function addHasOneRelation($relatedTable, $foreignKey)
     {
+        if ($this->isIgnoredRelation($relatedTable, $foreignKey)) {
+            return;
+        }
+
         $relatedModel = static::getInstance($relatedTable)->getModelName();
         $modelNameFromFK = studly_case(str_replace('_id', '', $foreignKey));
 
@@ -430,6 +434,10 @@ class Generator
      */
     protected function addHasManyRelation($relatedTable, $foreignKey)
     {
+        if ($this->isIgnoredRelation($relatedTable, $foreignKey)) {
+            return;
+        }
+
         $relatedModel = static::getInstance($relatedTable)->getModelName();
         $modelNameFromFK = studly_case(str_replace('_id', '', $foreignKey));
 
@@ -451,6 +459,10 @@ class Generator
      */
     protected function addBelongsToRelation($relatedTable, $foreignKey)
     {
+        if ($this->isIgnoredRelation($relatedTable, $foreignKey)) {
+            return;
+        }
+
         $relatedModel = static::getInstance($relatedTable)->getModelName();
         $relatedModelFromFK = studly_case(str_replace('_id', '', $foreignKey));
 
@@ -531,6 +543,26 @@ class Generator
         if ($relations = $this->config->get('models-generator.one_to_one_relations.'.$this->getTableName())) {
             foreach ($relations as $rel) {
                 if ($rel === $relatedTable || $rel === "$relatedTable.$fkOrMorphName") {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Est-ce la relation est à ignorer pour cette table ?
+     *
+     * @param  string $relatedTable
+     * @param  string $foreignKey
+     * @return boolean
+     */
+    protected function isIgnoredRelation($relatedTable, $foreignKey)
+    {
+        if ($relations = $this->config->get('models-generator.ignored_relations.'.$this->getTableName())) {
+            foreach ($relations as $rel) {
+                if ($rel === $relatedTable || $rel === "$relatedTable.$foreignKey") {
                     return true;
                 }
             }

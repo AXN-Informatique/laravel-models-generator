@@ -1,9 +1,10 @@
 Changelog for Laravel Models Generator
 ======================================
 
-2.0.4-dev
-------------------
+2.1.0-dev
+---------
 
+- Ajout de la possibilité d'ignorer des relations (option de config "ignored_relations").
 - Ordre des méthodes des relations par nom de méthode et non par nom de table.
 - Utilisation de l'IoC pour instancier le driver.
 

@@ -73,8 +73,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Liste des relations 1-1 (classiques ou polymorphiques) sous la forme :
-    | 'nom_table' => ['liste_tables_avec_fk(.nom_fk)'] (mettre nom_morph à la
-    | place de nom_fk si relation polymorphique).
+    | 'nom_table' => [liste_tables(.nom_fk)] (mettre nom_morph à la place de
+    | nom_fk si relation polymorphique).
     |
     | Exemple (staff has one user and morph one photo) :
     |     'staff' => ['users', 'photos']
@@ -84,6 +84,25 @@ return [
     */
 
     'one_to_one_relations' => [
+        //
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relations à ignorer.
+    |--------------------------------------------------------------------------
+    |
+    | Liste des relations "belongs to" et "has one or many" que l'on ne souhaite
+    | pas générer, sous la forme : 'nom_table' => [liste_tables(.nom_fk)].
+    |
+    | Exemple :
+    |     'posts' => ['comment_post', 'users']
+    |   ou avec précision fk :
+    |     'posts' => ['comment_post.post_id', 'users.user_id']
+    |
+    */
+
+    'ignored_relations' => [
         //
     ],
 
