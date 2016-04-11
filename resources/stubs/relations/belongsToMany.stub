@@ -6,5 +6,5 @@
      */
     public function {{methodName}}()
     {
-        return $this->belongsToMany('{{relatedModel}}', '{{pivotTable}}', '{{foreignKey}}', '{{otherKey}}')->withTimestamps();
+        return $this->belongsToMany('{{relatedModel}}', '{{pivotTable}}', '{{foreignKey}}', '{{otherKey}}');
     }

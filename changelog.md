@@ -1,10 +1,13 @@
 Changelog for Laravel Models Generator
 ======================================
 
-2.1.0-dev
+3.0.0-dev
 ---------
 
 - Ajout de la possibilité d'ignorer des relations (option de config "ignored_relations").
+- Utilisation des noms de tables au lieu des noms de modèles pour les nommages au pluriel.
+- Utilisation du mot-clé "Via" à la place de "Of" pour les précisions des relations.
+- Suppression de l'appel à la méthode "withTimestamps" dans le template de la relation "belongsToMany".
 - Ordre des méthodes des relations par nom de méthode et non par nom de table.
 - Utilisation de l'IoC pour instancier le driver.
 

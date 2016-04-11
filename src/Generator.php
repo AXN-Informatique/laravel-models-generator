@@ -413,13 +413,11 @@ class Generator
             return;
         }
 
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $modelNameFromFK = studly_case(str_replace('_id', '', $foreignKey));
+        $methodName = lcfirst(static::getInstance($relatedTable)->getModelName());
+        $precision = studly_case(str_replace('_id', '', $foreignKey));
 
-        if ($this->getModelName() !== $modelNameFromFK) {
-            $methodName = lcfirst($relatedModel).'Of'.$modelNameFromFK;
-        } else {
-            $methodName = lcfirst($relatedModel);
+        if ($this->getModelName() !== $precision) {
+            $methodName .= 'Via'.$precision;
         }
 
         $this->hasOneRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
@@ -438,13 +436,11 @@ class Generator
             return;
         }
 
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $modelNameFromFK = studly_case(str_replace('_id', '', $foreignKey));
+        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
+        $precision = studly_case(str_replace('_id', '', $foreignKey));
 
-        if ($this->getModelName() !== $modelNameFromFK) {
-            $methodName = str_plural(lcfirst($relatedModel)).'Of'.$modelNameFromFK;
-        } else {
-            $methodName = str_plural(lcfirst($relatedModel));
+        if ($this->getModelName() !== $precision) {
+            $methodName .= 'Via'.$precision;
         }
 
         $this->hasManyRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
@@ -463,14 +459,7 @@ class Generator
             return;
         }
 
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $relatedModelFromFK = studly_case(str_replace('_id', '', $foreignKey));
-
-        if ($relatedModel !== $relatedModelFromFK) {
-            $methodName = lcfirst($relatedModelFromFK);
-        } else {
-            $methodName = lcfirst($relatedModel);
-        }
+        $methodName = camel_case(str_replace('_id', '', $foreignKey));
 
         $this->belongsToRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
     }
@@ -486,8 +475,7 @@ class Generator
      */
     protected function addBelongsToManyRelation($relatedTable, $pivotTable, $foreignKey, $otherKey)
     {
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $methodName = str_plural(lcfirst($relatedModel));
+        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
 
         $this->belongsToManyRelations[] = [$relatedTable, $foreignKey, $methodName, $pivotTable, $otherKey];
     }
@@ -500,8 +488,7 @@ class Generator
      */
     protected function addMorphOneRelation($relatedTable, $morphName)
     {
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $methodName = lcfirst($relatedModel);
+        $methodName = lcfirst(static::getInstance($relatedTable)->getModelName());
 
         $this->morphOneRelations[] = [$relatedTable, $morphName, $methodName, '', ''];
     }
@@ -514,8 +501,7 @@ class Generator
      */
     protected function addMorphManyRelation($relatedTable, $morphName)
     {
-        $relatedModel = static::getInstance($relatedTable)->getModelName();
-        $methodName = str_plural(lcfirst($relatedModel));
+        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
 
         $this->morphManyRelations[] = [$relatedTable, $morphName, $methodName, '', ''];
     }
