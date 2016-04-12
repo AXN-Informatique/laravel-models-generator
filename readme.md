@@ -45,7 +45,7 @@ php artisan models:generate
 - **Modèle** = nom table singularisé (voir option de config "forced_names" si la singularisation
   ne se fait pas correctement) + studly case.
 - **Relations "has many", "morph many" et "belongs to many"** = nom table liée + camel case.
-- **Relation "has one" et "morph one"** = nom modèle + camel case.
+- **Relations "has one" et "morph one"** = nom modèle + camel case.
 - **Relation "belongs to"** = nom foreign key (sans le "_id") + camel case.
 - **Relation "morph to"** = nom morph défini dans l'option de config "polymorphic_relations".
 
