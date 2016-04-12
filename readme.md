@@ -49,11 +49,13 @@ php artisan models:generate
 - **Relation "belongs to"** = nom foreign key (sans le "_id") + camel case.
 - **Relation "morph to"** = nom morph défini dans l'option de config "polymorphic_relations".
 
-Concernant les relations "has many", "morph many" et "belongs to many", il est à noter
-que les tables doivent être nommées au pluriel pour que ces relations soient correctement
-nommées (pluralisation non réalisée par le générateur). De plus, si le nom de la foreign key
-ne correspond pas au nom de la table, une précision sera ajoutée au nom de la relation, sous
-la forme "Via{nomFK}".
+**Concernant les relations "has many", "morph many" et "belongs to many"** :
+
+- Pour que les noms de ces relations soient au pluriel, il faut que les noms des tables
+  soient au pluriel (le générateur ne fait pas de pluralisation).
+- Si la table liée est un pivot, le mot-clé "pivot" sera ajouté en préfixe à la relation.
+- Si le nom de la foreign key ne correspond pas au nom de la table, une précision sera ajoutée
+  au nom de la relation, sous la forme "Via{nomFK}".
 
 Exemple :
 
@@ -76,5 +78,8 @@ class User extends Model
 
     // Relation "has many" vers la table "comments" via fk "updator_id"
     public function commentsViaUpdator() {}
+
+    // Relation "has many" vers la table "role_user" qui est un pivot
+    public function pivotRoleUser() {}
 }
 ```

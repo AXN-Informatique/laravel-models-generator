@@ -436,11 +436,15 @@ class Generator
             return;
         }
 
-        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
-        $precision = studly_case(str_replace('_id', '', $foreignKey));
+        if (in_array($relatedTable, $this->config->get('models-generator.pivot_tables', []))) {
+            $methodName = 'pivot'.studly_case($relatedTable);
+        } else {
+            $methodName = camel_case($relatedTable);
+            $precision = studly_case(str_replace('_id', '', $foreignKey));
 
-        if ($this->getModelName() !== $precision) {
-            $methodName .= 'Via'.$precision;
+            if ($this->getModelName() !== $precision) {
+                $methodName .= 'Via'.$precision;
+            }
         }
 
         $this->hasManyRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
@@ -475,7 +479,7 @@ class Generator
      */
     protected function addBelongsToManyRelation($relatedTable, $pivotTable, $foreignKey, $otherKey)
     {
-        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
+        $methodName = camel_case($relatedTable);
 
         $this->belongsToManyRelations[] = [$relatedTable, $foreignKey, $methodName, $pivotTable, $otherKey];
     }
@@ -501,7 +505,7 @@ class Generator
      */
     protected function addMorphManyRelation($relatedTable, $morphName)
     {
-        $methodName = camel_case(static::getInstance($relatedTable)->getTableName());
+        $methodName = camel_case($relatedTable);
 
         $this->morphManyRelations[] = [$relatedTable, $morphName, $methodName, '', ''];
     }
