@@ -83,3 +83,32 @@ class User extends Model
     public function pivotRoleUser() {}
 }
 ```
+
+## Limitations
+
+### Noms de relations en doublon
+
+Il se peut que deux relations aient le même nom dans un même modèle, par exemple
+s'il y a une relation polymorphique ET une relation "has one or many" vers une même table.
+
+Exemple :
+
+```php
+class Staff extends Model
+{
+    // Relation polymorphique vers la table "photos" via champs "imageable_type" et "imageable_id"
+    public function photos()
+    {
+        return $this->morhMany('Photo', 'imageable');
+    }
+
+    // Relation "has many" vers la table "photos" via fk "staff_id"
+    public function photos()
+    {
+        return $this->hasMany('Photo', 'staff_id');
+    }
+}
+```
+
+Dans ce cas il faut soit retirer la relation "has many", via l'option de config "ignored_relations",
+soit retirer la relation polymorphique qui a été renseignée dans l'option de config "polymorphic_relations".
