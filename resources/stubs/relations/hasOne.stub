@@ -1,6 +1,6 @@
 
     /**
-     * Relation 1-1 vers la table `{{relatedTable}}`.
+     * Relation "has one" vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */

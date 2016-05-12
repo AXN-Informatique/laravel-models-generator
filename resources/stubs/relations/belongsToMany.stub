@@ -1,6 +1,6 @@
 
     /**
-     * Relation n-n vers la table `{{relatedTable}}`.
+     * Relation "belongs to many" vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

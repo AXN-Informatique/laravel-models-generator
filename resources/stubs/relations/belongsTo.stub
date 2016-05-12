@@ -1,6 +1,6 @@
 
     /**
-     * Relation 1-n/1-1 inverse vers la table `{{relatedTable}}`.
+     * Relation "belongs to" vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

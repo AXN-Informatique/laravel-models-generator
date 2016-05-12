@@ -1,6 +1,6 @@
 
     /**
-     * Relation polymorphique inverse.
+     * Relation "morph to".
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */

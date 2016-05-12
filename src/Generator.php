@@ -3,6 +3,7 @@
 namespace Axn\ModelsGenerator;
 
 use Illuminate\Config\Repository as Config;
+use Illuminate\Console\Command;
 use Axn\ModelsGenerator\Drivers\Driver;
 
 class Generator
@@ -36,6 +37,13 @@ class Generator
      * @var Driver
      */
     protected $driver;
+
+    /**
+     * Instance de la commande pour afficher des messages en console.
+     *
+     * @var Command|null
+     */
+    protected $command;
 
     /**
      * Nom de la table concernée.
@@ -112,7 +120,7 @@ class Generator
      *
      * @var string|null
      */
-    protected $morphToRelation = null;
+    protected $morphToRelations = [];
 
     /**
      * Retourne l'instance d'un générateur.
@@ -140,18 +148,19 @@ class Generator
     /**
      * Initialise puis retourne les générateurs de chaque table.
      *
-     * @param  Config $config
-     * @param  Driver $driver
+     * @param  Config       $config
+     * @param  Driver       $driver
+     * @param  Command|null $command
      * @return array[static]
      */
-    public static function initAndGetInstances(Config $config, Driver $driver)
+    public static function initAndGetInstances(Config $config, Driver $driver, $command = null)
     {
         $tablesNames = $driver->getTablesNames();
         $generators = [];
 
         // Crée les instances Generator pour chaque table
         foreach ($tablesNames as $tableName) {
-            $generator = new static($config, $driver, $tableName);
+            $generator = new static($config, $driver, $command, $tableName);
             $generators[] = $generator;
 
             static::setInstance($tableName, $generator);
@@ -172,8 +181,10 @@ class Generator
         }
 
         // Ajoute les relations polymorphiques via les informations renseignées dans la config
-        foreach ($config->get('models-generator.polymorphic_relations', []) as $polymorphicTable => $polymorphicRelations) {
-            static::getInstance($polymorphicTable)->polymorphic($polymorphicRelations);
+        foreach ($config->get('models-generator.polymorphic_relations', []) as $relation => $relatedTables) {
+            list($tableName, $morphName) = explode('.', $relation);
+
+            static::getInstance($tableName)->polymorphic($morphName, $relatedTables);
         }
 
         // Tri les relations (ordre d'apparition dans la classe modèle)
@@ -187,15 +198,17 @@ class Generator
     /**
      * Constructeur.
      *
-     * @param  Config $config
-     * @param  Driver $driver
-     * @param  string $tableName
+     * @param  Config       $config
+     * @param  Driver       $driver
+     * @param  Command|null $command
+     * @param  string       $tableName
      * @return void
      */
-    public function __construct(Config $config, Driver $driver, $tableName)
+    public function __construct(Config $config, Driver $driver, $command, $tableName)
     {
         $this->config = $config;
         $this->driver = $driver;
+        $this->command = $command;
         $this->tableName = $tableName;
 
         $group = $this->config->get("models-generator.groups.$tableName");
@@ -260,18 +273,17 @@ class Generator
     /**
      * Génère le fichier du modèle.
      *
-     * @param  boolean &$updated
-     * @return boolean
+     * @param  boolean $update
+     * @return void
      */
-    public function generateModel(&$updated = false)
+    public function generateModel($update = false)
     {
         $ignoredTables = $this->config->get('models-generator.ignored_tables', []);
-
-        if (in_array($this->getTableName(), $ignoredTables)) {
-            return false;
-        }
-
         $path = $this->getModelPath();
+
+        if (in_array($this->getTableName(), $ignoredTables) || is_file($path) && !$update) {
+            return;
+        }
 
         // Si modèle déjà existant : mise à jour des relations grâces aux tags
         if (is_file($path)) {
@@ -284,9 +296,16 @@ class Generator
         } else {
             $this->createMissingDirs($path);
             $content = $this->getModelContent();
+            $updated = false;
         }
 
-        return file_put_contents($path, $content) !== false;
+        file_put_contents($path, $content);
+
+        $this->message(
+            '<info>Model '.$this->getModelName().' '
+            . ($updated ? 'updated' : 'generated').':</info> '
+            . realpath($this->getModelPath())
+        );
     }
 
     /**
@@ -358,24 +377,23 @@ class Generator
      * Définit la table comme étant polymorphique pour ajouter les relations
      * MorphOne, MorphMany et MorphTo.
      *
-     * @param  array $relations
+     * @param  string $morphName
+     * @param  array  $relatedTables
      * @return void
      */
-    protected function polymorphic(array $relations)
+    protected function polymorphic($morphName, array $relatedTables)
     {
-        foreach ($relations as $morphName => $relatedTables) {
-            foreach ($relatedTables as $relatedTable) {
-                $related = static::getInstance($relatedTable);
+        foreach ($relatedTables as $relatedTable) {
+            $related = static::getInstance($relatedTable);
 
-                if ($related->isOneToOneRelation($this->getTableName(), $morphName)) {
-                    $related->addMorphOneRelation($this->getTableName(), $morphName);
-                } else {
-                    $related->addMorphManyRelation($this->getTableName(), $morphName);
-                }
+            if ($related->isOneToOneRelation($this->getTableName(), $morphName)) {
+                $related->addMorphOneRelation($this->getTableName(), $morphName);
+            } else {
+                $related->addMorphManyRelation($this->getTableName(), $morphName);
             }
-
-            $this->addMorphToRelation($morphName);
         }
+
+        $this->addMorphToRelation($morphName);
     }
 
     /**
@@ -387,17 +405,12 @@ class Generator
      */
     protected function sortRelations()
     {
-        // Tri par ordre alphabétique sur le nom de la relation (= nom de la méthode)
-        $sorter = function($a, $b) {
-            return strnatcmp($a[2], $b[2]);
-        };
-
-        usort($this->hasOneRelations, $sorter);
-        usort($this->hasManyRelations, $sorter);
-        usort($this->belongsToRelations, $sorter);
-        usort($this->belongsToManyRelations, $sorter);
-        usort($this->morphOneRelations, $sorter);
-        usort($this->morphManyRelations, $sorter);
+        ksort($this->hasOneRelations);
+        ksort($this->hasManyRelations);
+        ksort($this->belongsToRelations);
+        ksort($this->belongsToManyRelations);
+        ksort($this->morphOneRelations);
+        ksort($this->morphManyRelations);
     }
 
     /**
@@ -420,7 +433,7 @@ class Generator
             $methodName .= 'Via'.$precision;
         }
 
-        $this->hasOneRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
+        $this->hasOneRelations[$methodName] = [$relatedTable, $foreignKey, '', ''];
     }
 
     /**
@@ -447,7 +460,7 @@ class Generator
             }
         }
 
-        $this->hasManyRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
+        $this->hasManyRelations[$methodName] = [$relatedTable, $foreignKey, '', ''];
     }
 
     /**
@@ -459,13 +472,13 @@ class Generator
      */
     protected function addBelongsToRelation($relatedTable, $foreignKey)
     {
-        if ($this->isIgnoredRelation($relatedTable, $foreignKey)) {
+        if ($this->isIgnoredRelation($relatedTable, $foreignKey, true)) {
             return;
         }
 
         $methodName = camel_case(str_replace('_id', '', $foreignKey));
 
-        $this->belongsToRelations[] = [$relatedTable, $foreignKey, $methodName, '', ''];
+        $this->belongsToRelations[$methodName] = [$relatedTable, $foreignKey, '', ''];
     }
 
     /**
@@ -481,7 +494,7 @@ class Generator
     {
         $methodName = camel_case($relatedTable);
 
-        $this->belongsToManyRelations[] = [$relatedTable, $foreignKey, $methodName, $pivotTable, $otherKey];
+        $this->belongsToManyRelations[$methodName] = [$relatedTable, $foreignKey, $pivotTable, $otherKey];
     }
 
     /**
@@ -494,7 +507,7 @@ class Generator
     {
         $methodName = lcfirst(static::getInstance($relatedTable)->getModelName());
 
-        $this->morphOneRelations[] = [$relatedTable, $morphName, $methodName, '', ''];
+        $this->morphOneRelations[$methodName] = [$relatedTable, $morphName, '', ''];
     }
 
     /**
@@ -507,18 +520,18 @@ class Generator
     {
         $methodName = camel_case($relatedTable);
 
-        $this->morphManyRelations[] = [$relatedTable, $morphName, $methodName, '', ''];
+        $this->morphManyRelations[$methodName] = [$relatedTable, $morphName, '', ''];
     }
 
     /**
      * Ajoute une relation MorphTo.
      *
-     * @param  string $name
+     * @param  string $morphName
      * @return void
      */
-    protected function addMorphToRelation($name)
+    protected function addMorphToRelation($morphName)
     {
-        $this->morphToRelation = $name;
+        $this->morphToRelations[$morphName] = $morphName;
     }
 
     /**
@@ -530,12 +543,13 @@ class Generator
      */
     protected function isOneToOneRelation($relatedTable, $fkOrMorphName)
     {
-        if ($relations = $this->config->get('models-generator.one_to_one_relations.'.$this->getTableName())) {
-            foreach ($relations as $rel) {
-                if ($rel === $relatedTable || $rel === "$relatedTable.$fkOrMorphName") {
-                    return true;
-                }
-            }
+        $oneToOneRelations = $this->config->get('models-generator.one_to_one_relations', []);
+
+        $from = $this->getTableName();
+        $to = "$relatedTable.$fkOrMorphName";
+
+        if (in_array("$from:$to", $oneToOneRelations)) {
+            return true;
         }
 
         return false;
@@ -544,21 +558,50 @@ class Generator
     /**
      * Est-ce la relation est à ignorer pour cette table ?
      *
-     * @param  string $relatedTable
-     * @param  string $foreignKey
+     * @param  string  $relatedTable
+     * @param  string  $foreignKey
+     * @param  boolean $isBelongsTo
      * @return boolean
      */
-    protected function isIgnoredRelation($relatedTable, $foreignKey)
+    protected function isIgnoredRelation($relatedTable, $foreignKey, $isBelongsTo = false)
     {
-        if ($relations = $this->config->get('models-generator.ignored_relations.'.$this->getTableName())) {
-            foreach ($relations as $rel) {
-                if ($rel === $relatedTable || $rel === "$relatedTable.$foreignKey") {
-                    return true;
-                }
-            }
+        $ignoredRelations = $this->config->get('models-generator.ignored_relations', []);
+
+        $from = $this->getTableName().($isBelongsTo ? ".$foreignKey" : '');
+        $to = $relatedTable.(!$isBelongsTo ? ".$foreignKey" : '');
+
+        if (in_array("$from:$to", $ignoredRelations)) {
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * Vérifie qu'un nom de méthode pour une relation n'apparait qu'une seule fois.
+     *
+     * @param  string $methodName
+     * @return boolean
+     */
+    protected function checkRelationIsUnique($methodName)
+    {
+        if (array_key_exists($methodName, $this->hasOneRelations)
+            || array_key_exists($methodName, $this->hasManyRelations)
+            || array_key_exists($methodName, $this->belongsToRelations)
+            || array_key_exists($methodName, $this->belongsToManyRelations)
+            || array_key_exists($methodName, $this->morphOneRelations)
+            || array_key_exists($methodName, $this->morphManyRelations)
+            || array_key_exists($methodName, $this->morphToRelations)) {
+
+            $this->message(
+                '<error>Model '.$this->getModelName().': '
+                . 'relation name "'.$methodName.'" is duplicated!</error>'
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -570,14 +613,12 @@ class Generator
     {
         $stub = $this->getModelStub();
 
-        $content = strtr($stub, [
+        return strtr($stub, [
             '{{namespace}}' => $this->getModelNamespace(),
             '{{name}}'      => $this->getModelName(),
             '{{tableName}}' => $this->getTableName(),
             '{{relations}}' => $this->getRelationsContent(),
         ]);
-
-        return $content;
     }
 
     /**
@@ -594,7 +635,7 @@ class Generator
             . $this->getRelationsContentByType('belongsTo')
             . $this->getRelationsContentByType('morphOne')
             . $this->getRelationsContentByType('morphMany')
-            . $this->getMorphToRelationContent()
+            . $this->getMorphToRelationsContent()
             . '#END_GENERATED_RELATIONS';
     }
 
@@ -616,8 +657,12 @@ class Generator
         $content = '';
         $stub = $this->getRelationStub($type);
 
-        foreach ($this->{$relationProperty} as $relation) {
-            list($relatedTable, $fkOrMorphName, $methodName, $pivotTable, $otherKey) = $relation;
+        foreach ($this->{$relationProperty} as $methodName => $relation) {
+            if (!$this->checkRelationIsUnique($methodName)) {
+                continue;
+            }
+
+            list($relatedTable, $fkOrMorphName, $pivotTable, $otherKey) = $relation;
 
             $related = static::getInstance($relatedTable);
             $relatedNamespace = $related->getModelNamespace();
@@ -642,17 +687,26 @@ class Generator
      *
      * @return string
      */
-    protected function getMorphToRelationContent()
+    protected function getMorphToRelationsContent()
     {
-        if (empty($this->morphToRelation)) {
+        if (empty($this->morphToRelations)) {
             return '';
         }
 
+        $content = '';
         $stub = $this->getRelationStub('morphTo');
 
-        return strtr($stub, [
-            '{{methodName}}' => $this->morphToRelation,
-        ]);
+        foreach ($this->morphToRelations as $morphName) {
+            if (!$this->checkRelationIsUnique($morphName)) {
+                continue;
+            }
+
+            $content .= strtr($stub, [
+                '{{methodName}}' => $morphName,
+            ]);
+        }
+
+        return $content;
     }
 
     /**
@@ -703,7 +757,9 @@ class Generator
      */
     protected function tableToModel($tableName)
     {
-        if ($forcedName = $this->config->get("models-generator.forced_names.$tableName")) {
+        $forcedName = $this->config->get("models-generator.forced_names.$tableName");
+
+        if ($forcedName) {
             return $forcedName;
         }
 
@@ -724,6 +780,18 @@ class Generator
     {
         if (!is_dir($dirPath = dirname($filePath))) {
             mkdir($dirPath, 0755, true);
+        }
+    }
+
+    /**
+     * Permet d'afficher un message en console.
+     *
+     * @param string $message
+     */
+    protected function message($message)
+    {
+        if ($this->command instanceof Command) {
+            $this->command->line($message);
         }
     }
 }

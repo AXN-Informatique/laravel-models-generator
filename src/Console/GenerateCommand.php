@@ -33,13 +33,15 @@ class GenerateCommand extends Command
     {
         $config = $this->laravel['config'];
         $driver = $this->laravel['Axn\ModelsGenerator\Drivers\Driver'];
+        $tables = $this->option('table');
+        $update = $this->option('update');
 
         try {
-            $generators = Generator::initAndGetInstances($config, $driver);
+            $generators = Generator::initAndGetInstances($config, $driver, $this);
 
             foreach ($generators as $generator) {
-                if ($generator->generateModel($updated)) {
-                    $this->line('<info>Model '.($updated ? 'updated' : 'generated').':</info> '.realpath($generator->getModelPath()));
+                if (empty($tables) || in_array($generator->getTableName(), $tables)) {
+                    $generator->generateModel($update);
                 }
             }
         }
@@ -69,7 +71,8 @@ class GenerateCommand extends Command
 	protected function getOptions()
 	{
 		return [
-			//['example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null],
+			['table', 't', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Generate models only for these tables.'],
+            ['update', 'u', InputOption::VALUE_NONE, 'Update relations in existing models.'],
 		];
 	}
 }

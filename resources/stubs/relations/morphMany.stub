@@ -1,6 +1,6 @@
 
     /**
-     * Relation polymorphique 1-n vers la table `{{relatedTable}}`.
+     * Relation "morph many" vers la table `{{relatedTable}}`.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
