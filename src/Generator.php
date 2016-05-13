@@ -123,6 +123,13 @@ class Generator
     protected $morphToRelations = [];
 
     /**
+     * Liste des relations (noms de méthodes) qui ont déjà été générées.
+     *
+     * @var array
+     */
+    protected $generatedRelations = [];
+
+    /**
      * Retourne l'instance d'un générateur.
      *
      * @param  string $tableName
@@ -211,7 +218,7 @@ class Generator
         $this->command = $command;
         $this->tableName = $tableName;
 
-        $group = $this->config->get("models-generator.groups.$tableName");
+        $group = $this->config->get("models-generator.groupings.$tableName");
         $groupDir = ($group ? '/'.$group : '');
         $groupNs = str_replace('/', '\\', $groupDir);
 
@@ -279,19 +286,34 @@ class Generator
     public function generateModel($update = false)
     {
         $ignoredTables = $this->config->get('models-generator.ignored_tables', []);
-        $path = $this->getModelPath();
 
-        if (in_array($this->getTableName(), $ignoredTables) || is_file($path) && !$update) {
+        if (in_array($this->getTableName(), $ignoredTables)) {
             return;
         }
 
+        $path = $this->getModelPath();
+
         // Si modèle déjà existant : mise à jour des relations grâces aux tags
         if (is_file($path)) {
-            $content = preg_replace(
+            // Pas de mise à jour si non demandée (option "--update" de la commande)
+            if (!$update) {
+                return;
+            }
+
+            $modelContent = file_get_contents($path);
+            $hasTags = preg_match(
                 '/#GENERATED_RELATIONS.*#END_GENERATED_RELATIONS/Uus',
-                $this->getRelationsContent(),
-                file_get_contents($path)
+                $modelContent,
+                $matches
             );
+            $relationsContent = $this->getRelationsContent();
+
+            // Pas de mise à jour si pas besoin
+            if (!$hasTags || $matches[0] === $relationsContent) {
+                return;
+            }
+
+            $content = str_replace($matches[0], $relationsContent, $modelContent);
             $updated = true;
         } else {
             $this->createMissingDirs($path);
@@ -345,7 +367,9 @@ class Generator
         if (!$fk1 || !$fk2) {
             // Si les clés à utiliser ne sont pas spécifiées, on utilise les deux
             // premières relations BelongsTo qui ont été trouvées
-            $belongsToRelations = array_slice($this->belongsToRelations, 0, 2);
+            $belongsToRelations = array_values(
+                array_slice($this->belongsToRelations, 0, 2)
+            );
         } else {
             // Sinon, on recherche les relations BelongsTo qui sont concernées
             // par les clés $fk1 et $fk2
@@ -356,6 +380,15 @@ class Generator
                     $belongsToRelations[] = $btr;
                 }
             }
+        }
+
+        if (count($belongsToRelations) < 2) {
+            $this->message(
+                '<error>Pivot table '.$this->getTableName().' has not enough belongsTo '
+                . 'relations to determine belongsToMany relations</error>'
+            );
+
+            return;
         }
 
         static::getInstance($belongsToRelations[0][0])->addBelongsToManyRelation(
@@ -578,28 +611,23 @@ class Generator
     }
 
     /**
-     * Vérifie qu'un nom de méthode pour une relation n'apparait qu'une seule fois.
+     * Vérifie qu'une relation n'a pas déjà été générée avec le même nom.
      *
-     * @param  string $methodName
+     * @param  string $name
      * @return boolean
      */
-    protected function checkRelationIsUnique($methodName)
+    protected function checkRelationUniqueness($name)
     {
-        if (array_key_exists($methodName, $this->hasOneRelations)
-            || array_key_exists($methodName, $this->hasManyRelations)
-            || array_key_exists($methodName, $this->belongsToRelations)
-            || array_key_exists($methodName, $this->belongsToManyRelations)
-            || array_key_exists($methodName, $this->morphOneRelations)
-            || array_key_exists($methodName, $this->morphManyRelations)
-            || array_key_exists($methodName, $this->morphToRelations)) {
-
+        if (in_array($name, $this->generatedRelations)) {
             $this->message(
                 '<error>Model '.$this->getModelName().': '
-                . 'relation name "'.$methodName.'" is duplicated!</error>'
+                . 'relation name "'.$name.'" is duplicated!</error>'
             );
 
             return false;
         }
+
+        $this->generatedRelations[] = $name;
 
         return true;
     }
@@ -628,7 +656,7 @@ class Generator
      */
     protected function getRelationsContent()
     {
-        return '#GENERATED_RELATIONS'
+        $content = '#GENERATED_RELATIONS'
             . $this->getRelationsContentByType('belongsToMany')
             . $this->getRelationsContentByType('hasOne')
             . $this->getRelationsContentByType('hasMany')
@@ -637,6 +665,10 @@ class Generator
             . $this->getRelationsContentByType('morphMany')
             . $this->getMorphToRelationsContent()
             . '#END_GENERATED_RELATIONS';
+
+        $this->generatedRelations = [];
+
+        return $content;
     }
 
     /**
@@ -658,7 +690,7 @@ class Generator
         $stub = $this->getRelationStub($type);
 
         foreach ($this->{$relationProperty} as $methodName => $relation) {
-            if (!$this->checkRelationIsUnique($methodName)) {
+            if (!$this->checkRelationUniqueness($methodName)) {
                 continue;
             }
 
@@ -697,7 +729,7 @@ class Generator
         $stub = $this->getRelationStub('morphTo');
 
         foreach ($this->morphToRelations as $morphName) {
-            if (!$this->checkRelationIsUnique($morphName)) {
+            if (!$this->checkRelationUniqueness($morphName)) {
                 continue;
             }
 

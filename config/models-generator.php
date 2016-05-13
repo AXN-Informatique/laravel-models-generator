@@ -22,7 +22,7 @@ return [
     ],
 
     /*
-     * Liste des tables pivots pour la création des relations n-n.
+     * Liste des tables pivots pour créer les relations n-n ("belongs to many").
      *
      * La relation n-n à faire est automatiquement déterminée à partir des deux
      * premières clés étrangères trouvées dans le pivot. Mais il est possible
@@ -86,15 +86,14 @@ return [
     ],
 
     /*
-     * Permet de regrouper dans des sous-dossiers les modèles concernés par une
-     * même thématique.
+     * Permet de regrouper des modèles dans des sous-dossiers.
      *
      * Exemples :
      *   'users'     => 'Auth',
      *   'roles'     => 'Auth',
      *   'role_user' => 'Auth/Pivots'
      */
-    'groups' => [
+    'groupings' => [
         //
     ],
 

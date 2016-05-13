@@ -5,17 +5,19 @@ Changelog for Laravel Models Generator
 ------------------
 
 - Ajout des tables "cache" et "sessions" dans l'option de config "ignored_tables".
-- Ajout de la possibilité d'ignorer des relations (option de config "ignored_relations").
+- Ajout de l'option de config "ignored_relations" pour exclure des relations de la génération.
 - Ajout de l'option de commande "--table" ("-t") pour spécifier les tables à générer.
 - Ajout de l'option de commande "--update" ("-u") pour mettre à jour les modèles existants.
+- Renommage de l'option de config "groups" en "groupings".
 - Modification du format des options de config "polymorphic_relations" et "one_to_one_relations".
 - Utilisation des noms de tables au lieu des noms de modèles pour les nommages au pluriel.
 - Utilisation du mot-clé "Via" à la place de "Of" pour les précisions des relations.
 - Ajout du préfixe "pivot" aux noms des relations "has many" vers les tables pivots.
 - Suppression de l'extention d'Eloquent dans le template du modèle.
 - Suppression de l'appel à la méthode "withTimestamps" dans le template de la relation "belongsToMany".
-- Gestion des cas de doublons dans les noms de relations.
+- Notification de la MAJ d'un modèle uniquement si la MAJ est effective.
 - Ordre des méthodes des relations par nom de méthode et non par nom de table.
+- Amélioration de la gestion des erreurs.
 - Utilisation de l'IoC pour instancier le driver.
 - Réécriture des commentaires dans la config.
 

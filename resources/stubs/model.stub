@@ -24,7 +24,8 @@ class {{name}} extends Model
     // NOTE IMPORTANTE !
     //
     // Ne pas modifier le contenu entre ces tags car rafraîchi à chaque lancement
-    // de la commande "artisan models:generate" (axn/laravel-models-generator).
+    // de la commande "artisan models:generate" (axn/laravel-models-generator)
+    // avec l'option "--update" (ou "-u").
     //
 {{relations}}
 }
