@@ -1,7 +1,7 @@
 Changelog for Laravel Models Generator
 ======================================
 
-3.0.0-dev
+3.0.0 (2016-05-13)
 ------------------
 
 - Ajout des tables "cache" et "sessions" dans l'option de config "ignored_tables".

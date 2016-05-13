@@ -43,7 +43,7 @@ php artisan models:generate
 **Options :**
 
 * **--table (ou -t) :** Permet d'indiquer les tables à générer. Pour renseigner
-  plusieurs tables, faire : -t <table1> -t <table2> -t ...
+  plusieurs tables, faire : -t table1 -t table2 -t ...
 * **--update (ou -u) :** Si cette option est précisée, les modèles déjà existants
   seront mis à jour (relations).
 
