@@ -1,9 +1,9 @@
 {
     "name" : "axn/laravel-models-generator",
     "description" : "Eloquent model generation from the database.",
-    "homepage" : "https://bitbucket.org/axn/laravel-models-generator",
+    "homepage" : "https://github.com/AXN-Informatique/laravel-models-generator",
     "support" : {
-        "issues" : "https://bitbucket.org/axn/laravel-models-generator/issues?status=new&status=open"
+        "issues" : "https://github.com/AXN-Informatique/laravel-models-generator/issues"
     },
     "authors" : [{
             "name" : "AXN Informatique",
