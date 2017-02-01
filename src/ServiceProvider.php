@@ -23,7 +23,7 @@ class ServiceProvider extends BaseServiceProvider
         });
 
         // Commande
-        $this->app['command.models.generate'] = $this->app->share(function() {
+        $this->app->singleton('command.models.generate', function() {
             return new Console\GenerateCommand;
         });
 
