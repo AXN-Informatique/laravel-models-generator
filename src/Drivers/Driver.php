@@ -14,16 +14,16 @@ interface Driver
     /**
      * Retourne le code SQL pour la création de la table.
      *
-     * @param  string $tableName
+     * @param  string $table
      * @return string
      */
-    public function getSqlCreateTable($tableName);
+    public function getSqlCreateTable($table);
 
     /**
      * Récupère les contraintes d'une table à partir du code SQL de sa création.
      *
-     * @param  string
+     * @param  string $table
      * @return array[string]
      */
-    public function getTableConstraintsInfo($tableName);
+    public function getTableConstraintsInfo($table);
 }

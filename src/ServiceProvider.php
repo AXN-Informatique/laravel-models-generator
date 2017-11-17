@@ -13,18 +13,14 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        // Driver
-        $this->app->bind(__NAMESPACE__.'\Drivers\Driver', function($app) {
+        $this->app->singleton('command.models.generate', function($app) {
             $db = $app['db.connection'];
-
             $driverClass = __NAMESPACE__.'\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
+            $driver = new $driverClass($db->getPdo());
 
-            return new $driverClass($db->getPdo());
-        });
+            $builder = new Builder($app['config'], $driver);
 
-        // Commande
-        $this->app->singleton('command.models.generate', function() {
-            return new Console\GenerateCommand;
+            return new Console\GenerateCommand($builder);
         });
 
         $this->commands([
@@ -56,7 +52,6 @@ class ServiceProvider extends BaseServiceProvider
     public function provides()
     {
         return [
-            __NAMESPACE__.'\Drivers\Driver',
             'command.models.generate'
         ];
     }

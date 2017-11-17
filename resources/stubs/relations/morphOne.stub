@@ -4,7 +4,7 @@
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function {{methodName}}()
+    public function {{name}}()
     {
         return $this->morphOne('{{relatedModel}}', '{{morphName}}');
     }

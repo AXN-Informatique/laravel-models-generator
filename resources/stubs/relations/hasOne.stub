@@ -4,7 +4,7 @@
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function {{methodName}}()
+    public function {{name}}()
     {
         return $this->hasOne('{{relatedModel}}', '{{foreignKey}}');
     }

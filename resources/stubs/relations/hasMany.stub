@@ -4,7 +4,7 @@
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function {{methodName}}()
+    public function {{name}}()
     {
         return $this->hasMany('{{relatedModel}}', '{{foreignKey}}');
     }

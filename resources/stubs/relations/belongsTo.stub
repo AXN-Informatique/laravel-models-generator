@@ -4,7 +4,7 @@
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function {{methodName}}()
+    public function {{name}}()
     {
         return $this->belongsTo('{{relatedModel}}', '{{foreignKey}}');
     }

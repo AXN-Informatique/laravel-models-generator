@@ -11,7 +11,7 @@ class {{name}} extends Model
      *
      * @var string
      */
-    protected $table = '{{tableName}}';
+    protected $table = '{{table}}';
 
     /**
      * Liste des champs protégés contre l'assignation/modification.

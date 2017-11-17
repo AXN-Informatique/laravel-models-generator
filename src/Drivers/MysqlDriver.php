@@ -7,18 +7,18 @@ use PDO;
 class MysqlDriver implements Driver
 {
     /**
-     * Liste des codes SQL de création de table, par table.
-     *
-     * @var array[string]
-     */
-    private static $sqlCreateTable = [];
-
-    /**
      * Instance PDO pour la connexion à la base de données.
      *
      * @var PDO
      */
-    private $pdo;
+    protected $pdo;
+
+    /**
+     * Liste des instructions SQL de création de table, par table.
+     *
+     * @var array[string]
+     */
+    protected $sqlCreateTable;
 
     /**
      * Constructeur.
@@ -29,6 +29,7 @@ class MysqlDriver implements Driver
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->sqlCreateTable = [];
     }
 
     /**
@@ -46,31 +47,31 @@ class MysqlDriver implements Driver
     /**
      * Retourne le code SQL pour la création de la table.
      *
-     * @param  string $tableName
+     * @param  string $table
      * @return string
      */
-    public function getSqlCreateTable($tableName)
+    public function getSqlCreateTable($table)
     {
-        if (empty(static::$sqlCreateTable[$tableName])) {
-            $query = $this->pdo->query("SHOW CREATE TABLE $tableName");
+        if (empty($this->$sqlCreateTable[$table])) {
+            $query = $this->pdo->query("SHOW CREATE TABLE $table");
 
-            static::$sqlCreateTable[$tableName] = $query->fetchColumn(1);
+            $this->$sqlCreateTable[$table] = $query->fetchColumn(1);
         }
 
-        return static::$sqlCreateTable[$tableName];
+        return $this->$sqlCreateTable[$table];
     }
 
     /**
      * Récupère les contraintes d'une table à partir du code SQL de sa création.
      *
-     * @param  string
+     * @param  string $table
      * @return array[string]
      */
-    public function getTableConstraintsInfo($tableName)
+    public function getTableConstraintsInfo($table)
     {
         preg_match_all(
             '/CONSTRAINT `\w+` FOREIGN KEY \(`(.+)`\) REFERENCES `(\w+)` \(`.+`\)/Us',
-            $this->getSqlCreateTable($tableName),
+            $this->getSqlCreateTable($table),
             $matches
         );
 
