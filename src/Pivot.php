@@ -7,7 +7,7 @@ class Pivot
     /**
      * Nom de la table pivot.
      *
-     * @var [type]
+     * @var string
      */
     protected $table;
 

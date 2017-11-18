@@ -62,7 +62,7 @@ class GenerateCommand extends Command
             $this->error('Preview mode: files are not generated/modified');
         }
 
-        // Construit les instances modèles
+        // Construit les instances des modèles
         $models = $this->builder->getModels();
 
         // Génère et/ou met à jour les modèles
@@ -72,9 +72,11 @@ class GenerateCommand extends Command
             }
         } else {
             foreach ($models as $model) {
-                if (!in_array($model->getTable(), $ignoredTables)) {
-                    $this->generateOrUpdateModel($model, $update, $preview);
+                if (in_array($model->getTable(), $ignoredTables)) {
+                    continue;
                 }
+
+                $this->generateOrUpdateModel($model, $update, $preview);
             }
         }
     }
@@ -91,34 +93,12 @@ class GenerateCommand extends Command
     {
         // Fichier déjà existant : mise à jour des relations
         if (is_file($model->getPath())) {
-            if (!$update) {
-                return;
-            }
-
-            $fileContent = file_get_contents($model->getPath());
-    
-            $hasTags = preg_match(
-                '/#GENERATED_RELATIONS.*#END_GENERATED_RELATIONS/Uus',
-                $fileContent,
-                $matches
-            );
-    
-            if (!$hasTags) {
-                return;
-            }
-    
-            $oldRelations = str_replace("\r\n", "\n", $matches[0]);
-            $newRelations = str_replace("\r\n", "\n", $model->getRelationsContent());
-    
-            if ($oldRelations === $newRelations) {
+            if (!$update || !$model->needsUpdate()) {
                 return;
             }
 
             if (!$preview) {
-                file_put_contents(
-                    $model->getPath(),
-                    str_replace($oldRelations, $newRelations, $fileContent)
-                );
+                $model->updateFile();
             }
 
             $this->line('<comment>Updated:</comment> '.$model->getName().' in '.$model->getPath());
@@ -126,13 +106,7 @@ class GenerateCommand extends Command
         // Sinon : création du fichier
         else {
             if (!$preview) {
-                $dirPath = dirname($model->getPath());
-        
-                if (!is_dir($dirPath)) {
-                    mkdir($dirPath, 0755, true);
-                }
-        
-                file_put_contents($model->getPath(), $model->getContent());
+                $model->generateFile();
             }
 
             $this->line('<info>Created:</info> '.$model->getName().' in '.$model->getPath());

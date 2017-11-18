@@ -44,6 +44,13 @@ class Model
     protected $relations = [];
 
     /**
+     * Cache des contenus générés et existants.
+     *
+     * @var array
+     */
+    protected $contents = [];
+
+    /**
      * Constructeur.
      *
      * @param  string $table
@@ -117,7 +124,7 @@ class Model
      * @param  string $foreignKey
      * @return void
      */
-    protected function belongsTo(Model $relatedModel, $foreignKey)
+    public function belongsTo(Model $relatedModel, $foreignKey)
     {
         $this->addRelation(
             new Relations\BelongsTo($this, $relatedModel, $foreignKey)
@@ -133,7 +140,7 @@ class Model
      * @param  string $otherKey
      * @return void
      */
-    protected function belongsToMany(Model $relatedModel, $pivotTable, $foreignKey, $otherKey)
+    public function belongsToMany(Model $relatedModel, $pivotTable, $foreignKey, $otherKey)
     {
         $this->addRelation(
             new Relations\BelongsToMany($this, $relatedModel, $pivotTable, $foreignKey, $otherKey)
@@ -147,7 +154,7 @@ class Model
      * @param  string $foreignKey
      * @return void
      */
-    protected function hasMany(Model $relatedModel, $foreignKey)
+    public function hasMany(Model $relatedModel, $foreignKey)
     {
         $this->addRelation(
             new Relations\HasMany($this, $relatedModel, $foreignKey)
@@ -161,7 +168,7 @@ class Model
      * @param  string $foreignKey
      * @return void
      */
-    protected function hasOne(Model $relatedModel, $foreignKey)
+    public function hasOne(Model $relatedModel, $foreignKey)
     {
         $this->addRelation(
             new Relations\HasOne($this, $relatedModel, $foreignKey)
@@ -175,7 +182,7 @@ class Model
      * @param  string $morphName
      * @return void
      */
-    protected function morphMany(Model $relatedModel, $morphName)
+    public function morphMany(Model $relatedModel, $morphName)
     {
         $this->addRelation(
             new Relations\MorphMany($this, $relatedModel, $morphName)
@@ -189,7 +196,7 @@ class Model
      * @param  string $morphName
      * @return void
      */
-    protected function morphOne(Model $relatedModel, $morphName)
+    public function morphOne(Model $relatedModel, $morphName)
     {
         $this->addRelation(
             new Relations\MorphOne($this, $relatedModel, $morphName)
@@ -202,7 +209,7 @@ class Model
      * @param  string $morphName
      * @return void
      */
-    protected function morphTo($morphName)
+    public function morphTo($morphName)
     {
         $this->addRelation(
             new Relations\MorphTo($this, $morphName)
@@ -231,14 +238,19 @@ class Model
      *
      * @return string
      */
-    protected function getContent()
+    public function getContent()
     {
-        return strtr($this->getStubContent('model'), [
-            '{{namespace}}' => $this->namespace,
-            '{{name}}'      => $this->name,
-            '{{table}}'     => $this->table,
-            '{{relations}}' => $this->getRelationsContent(),
-        ]);
+        if (isset($this->contents['model'])) {
+            return $this->contents['model'];
+        }
+
+        return $this->contents['model']
+            = strtr($this->getStubContent('model'), [
+                '{{namespace}}' => $this->namespace,
+                '{{name}}'      => $this->name,
+                '{{table}}'     => $this->table,
+                '{{relations}}' => $this->getRelationsContent(),
+            ]);
     }
 
     /**
@@ -246,8 +258,12 @@ class Model
      *
      * @return string
      */
-    protected function getRelationsContent()
+    public function getRelationsContent()
     {
+        if (isset($this->contents['relations'])) {
+            return $this->contents['relations'];
+        }
+
         ksort($this->relations);
         
         $content = '#GENERATED_RELATIONS';
@@ -258,6 +274,98 @@ class Model
 
         $content .= '#END_GENERATED_RELATIONS';
 
-        return $content;
+        return $this->contents['relations'] = $content;
+    }
+
+    /**
+     * Retourne le contenu du fichier modèle existant.
+     *
+     * @return string
+     */
+    public function getFileContent()
+    {
+        if (isset($this->contents['file'])) {
+            return $this->contents['file'];
+        }
+
+        return $this->contents['file']
+            = file_get_contents($this->getPath());
+    }
+
+    /**
+     * Retourne le contenu des relations du fichier modèle existant. 
+     *
+     * @return string
+     */
+    public function getFileRelationsContent()
+    {
+        if (isset($this->contents['fileRelations'])) {
+            return $this->contents['fileRelations'];
+        }
+
+        $hasTags = preg_match(
+            '/#GENERATED_RELATIONS.*#END_GENERATED_RELATIONS/Uus',
+            $this->getFileContent(),
+            $matches
+        );
+
+        if (!$hasTags) {
+            return '';
+        }
+
+        return $this->contents['fileRelations'] = $matches[0];
+    }
+
+    /**
+     * Génère le modèle.
+     *
+     * @return void
+     */
+    public function generateFile()
+    {
+        $dirPath = dirname($this->getPath());
+
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0755, true);
+        }
+
+        file_put_contents(
+            $this->getPath(),
+            $this->getContent()
+        );
+    }
+
+    /**
+     * Met à jour les relations dans le fichier modèle existant.
+     *
+     * @return void
+     */
+    public function updateFile()
+    {
+        file_put_contents(
+            $this->getPath(),
+            str_replace(
+                $this->getFileRelationsContent(),
+                $this->getRelationsContent(),
+                $this->getFileContent()
+            )
+        );
+    }
+
+    /**
+     * Indique si le fichier du modèle nécessite d'être mis à jour.
+     *
+     * @return bool
+     */
+    public function needsUpdate()
+    {
+        $new = $this->getRelationsContent();
+        $old = $this->getFileRelationsContent();
+
+        $normalize = function($content) {
+            return str_replace("\r\n", "\n", $content);
+        };
+
+        return $normalize($new) === $normalize($old);
     }
 }

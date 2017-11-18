@@ -46,8 +46,6 @@ class Builder
     {
         $this->config = $config;
         $this->driver = $driver;
-        $this->models = [];
-        $this->pivots = [];
     }
 
     /**

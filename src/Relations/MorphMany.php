@@ -45,7 +45,7 @@ class MorphMany extends Relation
      *
      * @return string
      */
-    protected function getContent()
+    public function getContent()
     {
         return strtr($this->getRelationStubContent(), [
             '{{name}}'         => $this->name,
