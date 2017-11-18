@@ -61,22 +61,10 @@ class Builder
 
         $tables = $this->driver->getTablesNames();
 
-        // Initialise les pivots en fonction de la configuration
-        foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
-            if (is_array($table)) {
-                $this->pivots[$table[0]] = new Pivot($table[0], $table[1], $table[2]);
-            } else {
-                $this->pivots[$table] = new Pivot($table);
-            }
-        }
+        $this->initPivots($tables);
         
         // Crée les instances des modèles pour chaque table
         foreach ($tables as $table) {
-            // Les tables dont le nom contient "_has_" sont automatiquement considérées comme pivot
-            if (strpos($table, '_has_') !== false) {
-                $this->pivots[$table] = new Pivot($table);
-            }
-
             $this->models[$table] = $this->createModel($table);
         }
 
@@ -90,7 +78,7 @@ class Builder
             $pivot->addBelongsToManyRelationsToModels();
         }
 
-        // Ajoute les relations polymorphiques via les informations renseignées dans la config
+        // Ajoute les relations polymorphiques selon les informations renseignées dans la config
         foreach ($this->config->get('models-generator.polymorphic_relations', []) as $relation => $relatedTables) {
             list($table, $morphName) = explode('.', $relation);
 
@@ -98,6 +86,31 @@ class Builder
         }
 
         return $this->models;
+    }
+
+    /**
+     * Initialise les instances des pivots.
+     *
+     * @param  array $tables
+     * @return void
+     */
+    protected function initPivots(array $tables)
+    {
+        // Tables contenant le mot clé "_has_"
+        foreach ($tables as $table) {
+            if (strpos($table, '_has_') !== false) {
+                $this->pivots[$table] = new Pivot($table);
+            }
+        }
+
+        // Tables renseignées dans la configuration
+        foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
+            if (is_array($table)) {
+                $this->pivots[$table[0]] = new Pivot($table[0], $table[1], $table[2]);
+            } else {
+                $this->pivots[$table] = new Pivot($table);
+            }
+        }
     }
 
     /**

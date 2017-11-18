@@ -18,7 +18,7 @@ class MysqlDriver implements Driver
      *
      * @var array[string]
      */
-    protected $sqlCreateTable;
+    protected $sqlCreateTable = [];
 
     /**
      * Constructeur.
@@ -29,7 +29,6 @@ class MysqlDriver implements Driver
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->sqlCreateTable = [];
     }
 
     /**

@@ -51,19 +51,16 @@ class GenerateCommand extends Command
      */
     public function handle()
     {
+        // Construit les instances des modèles
+        $models = $this->builder->getModels();
+
         $onlyTables = $this->option('table');
         $update = $this->option('update');
         $preview = $this->option('preview');
-
-        $config = $this->laravel['config'];
-        $ignoredTables = $config->get('models-generator.ignored_tables', []);
         
         if ($preview) {
             $this->error('Preview mode: files are not generated/modified');
         }
-
-        // Construit les instances des modèles
-        $models = $this->builder->getModels();
 
         // Génère et/ou met à jour les modèles
         if (!empty($onlyTables)) {
@@ -71,6 +68,9 @@ class GenerateCommand extends Command
                 $this->generateOrUpdateModel($models[$table], $update, $preview);
             }
         } else {
+            $config = $this->laravel['config'];
+            $ignoredTables = $config->get('models-generator.ignored_tables', []);
+
             foreach ($models as $model) {
                 if (in_array($model->getTable(), $ignoredTables)) {
                     continue;
@@ -135,7 +135,7 @@ class GenerateCommand extends Command
 		return [
 			['table', 't', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Generate models only for these tables.'],
             ['update', 'u', InputOption::VALUE_NONE, 'Update relations in existing models.'],
-            ['preview', 'p', InputOption::VALUE_NONE, 'Display operations without generate or update.'],
+            ['preview', 'p', InputOption::VALUE_NONE, 'Displays results without touching files.'],
 		];
 	}
 }
