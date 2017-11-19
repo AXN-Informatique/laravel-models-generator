@@ -59,7 +59,7 @@ class GenerateCommand extends Command
         $preview = $this->option('preview');
         
         if ($preview) {
-            $this->error('Preview mode: files are not generated/modified');
+            $this->error('Preview mode: files are not touched');
         }
 
         // Génère et/ou met à jour les modèles

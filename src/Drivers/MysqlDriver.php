@@ -51,13 +51,13 @@ class MysqlDriver implements Driver
      */
     public function getSqlCreateTable($table)
     {
-        if (empty($this->$sqlCreateTable[$table])) {
+        if (empty($this->sqlCreateTable[$table])) {
             $query = $this->pdo->query("SHOW CREATE TABLE $table");
 
-            $this->$sqlCreateTable[$table] = $query->fetchColumn(1);
+            $this->sqlCreateTable[$table] = $query->fetchColumn(1);
         }
 
-        return $this->$sqlCreateTable[$table];
+        return $this->sqlCreateTable[$table];
     }
 
     /**

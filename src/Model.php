@@ -59,7 +59,7 @@ class Model
      * @param  string $path
      * @return void
      */
-    protected function __construct($table, $name, $namespace, $path)
+    public function __construct($table, $name, $namespace, $path)
     {
         $this->table = $table;
         $this->name = $name;
@@ -366,6 +366,6 @@ class Model
             return str_replace("\r\n", "\n", $content);
         };
 
-        return $normalize($new) === $normalize($old);
+        return $normalize($new) !== $normalize($old);
     }
 }
