@@ -49,6 +49,8 @@ php artisan models:generate
   plusieurs tables, faire : -t table1 -t table2 -t ...
 * **--update (ou -u) :** Si cette option est précisée, les modèles déjà existants
   seront mis à jour (relations).
+* **--preview (ou -p) :** Si cette option est précisée, les messages des opérations
+  effectuées seront affichés mais sans toucher aux fichiers.
 
 ## Conventions de nommage
 
@@ -63,9 +65,10 @@ php artisan models:generate
 
 - Pour que les noms de ces relations soient au pluriel, il faut que les noms des tables
   soient au pluriel (le générateur ne fait pas de pluralisation).
-- Si la table liée est un pivot, le mot-clé "pivot" sera ajouté en préfixe à la relation.
 - Si le nom de la foreign key ne correspond pas au nom de la table, une précision sera ajoutée
   au nom de la relation, sous la forme "Via{nomFK}".
+- Les tables dont le nom contient "_has_" sont automatiquement reconnues comme étant des pivots
+  (donc pas besoin de les renseigner dans la config).
 
 Exemple :
 
@@ -88,9 +91,6 @@ class User extends Model
 
     // Relation "has many" vers la table "comments" via fk "updator_id"
     public function commentsViaUpdator() {}
-
-    // Relation "has many" vers la table "role_user" qui est un pivot
-    public function pivotRoleUser() {}
 }
 ```
 

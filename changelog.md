@@ -1,6 +1,17 @@
 Changelog for Laravel Models Generator
 ======================================
 
+4.0.0
+------------------
+
+- Détection automatique des tables pivot qui ont le mot clé "\_has\_".
+- Ajout de l'option --preview (-p) à la commande.
+- Tri des relations de manière globale et non plus par type de relation.
+- Les relations "has many" vers les tables pivot ne sont plus préfixées par le mot clé "pivot".
+- Modification des noms de variables dans les templates.
+- Exception levée si une erreur survient lors de l'initialisation de la génération.
+- Refactoring complet du code.
+
 3.1.0 (2017-02-01)
 ------------------
 
