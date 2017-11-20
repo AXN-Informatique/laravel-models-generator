@@ -10,6 +10,7 @@ Changelog for Laravel Models Generator
 - Les relations "has many" vers les tables pivot ne sont plus préfixées par le mot clé "pivot".
 - Modification des noms de variables dans les templates.
 - Exception levée si une erreur survient lors de l'initialisation de la génération.
+- Correction de la détection des différences dans les relations des modèles pour la mise à jour.
 - Refactoring complet du code.
 
 3.1.0 (2017-02-01)

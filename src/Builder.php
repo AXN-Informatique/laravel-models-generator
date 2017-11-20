@@ -61,21 +61,33 @@ class Builder
 
         $tables = $this->driver->getTablesNames();
 
-        $this->initPivots($tables);
-        
-        // Crée les instances des modèles pour chaque table
         foreach ($tables as $table) {
+            // Crée l'instance du modèle pour la table correspondante
             $this->models[$table] = $this->createModel($table);
+
+            // Crée l'instance du pivot si la table est reconnue comme tel
+            if (strpos($table, '_has_') !== false) {
+                $this->pivots[$table] = new Pivot($table);
+            }
+        }
+
+        // Crée les instances des pivots selon les informations renseignées dans la config
+        foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
+            if (is_array($table)) {
+                $this->pivots[$table[0]] = new Pivot($table[0], $table[1], $table[2]);
+            } else {
+                $this->pivots[$table] = new Pivot($table);
+            }
         }
 
         // Ajoute les relations 1-n et 1-1 selon les contraintes définies dans la BDD
         foreach ($this->models as $model) {
-            $this->addRelationsUsingConstraints($model);
+            $this->addRelationsAccordingToConstraints($model);
         }
 
         // Ajoute les relations n-n via les instances des pivots
         foreach ($this->pivots as $pivot) {
-            $pivot->addBelongsToManyRelationsToModels();
+            $pivot->addBelongsToManyRelationsToRelatedModels();
         }
 
         // Ajoute les relations polymorphiques selon les informations renseignées dans la config
@@ -86,31 +98,6 @@ class Builder
         }
 
         return $this->models;
-    }
-
-    /**
-     * Initialise les instances des pivots.
-     *
-     * @param  array $tables
-     * @return void
-     */
-    protected function initPivots(array $tables)
-    {
-        // Tables contenant le mot clé "_has_"
-        foreach ($tables as $table) {
-            if (strpos($table, '_has_') !== false) {
-                $this->pivots[$table] = new Pivot($table);
-            }
-        }
-
-        // Tables renseignées dans la configuration
-        foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
-            if (is_array($table)) {
-                $this->pivots[$table[0]] = new Pivot($table[0], $table[1], $table[2]);
-            } else {
-                $this->pivots[$table] = new Pivot($table);
-            }
-        }
     }
 
     /**
@@ -133,13 +120,15 @@ class Builder
     }
 
     /**
-     * Analyse les contraintes de clés étrangères dans la BDD pour ajouter les
-     * relations HasOne, HasMany et BelongsTo.
+     * Ajoute les relations HasOne, HasMany et BelongsTo à un modèle selon les
+     * contraintes de clés étrangères définies dans la BDD. Si pivot, le modèle
+     * associé en BelongsTo est ajouté à l'instance Pivot correspondante pour
+     * l'ajout des relations BelongsToMany dans un second temps.
      *
      * @param  Model $model
      * @return void
      */
-    protected function addRelationsUsingConstraints(Model $model)
+    protected function addRelationsAccordingToConstraints(Model $model)
     {
         $constraintsInfo = $this->driver->getTableConstraintsInfo($model->getTable());
 
@@ -159,16 +148,14 @@ class Builder
                 $model->belongsTo($relatedModel, $foreignKey);
             }
 
-            // Si la table est un pivot, on mémorise les informations qui permettront
-            // de créer les relations belongsToMany
             if (isset($this->pivots[$model->getTable()])) {
-                $this->pivots[$model->getTable()]->setModel($foreignKey, $relatedModel);
+                $this->pivots[$model->getTable()]->setRelatedModel($foreignKey, $relatedModel);
             }
         }
     }
 
     /**
-     * Ajoute les relations MorphOne, MorphMany et MorphTo.
+     * Ajoute les relations MorphOne, MorphMany et MorphTo à un modèle.
      *
      * @param  string $morphName
      * @param  array  $relatedTables
@@ -190,7 +177,7 @@ class Builder
     }
 
     /**
-     * Est-ce que la relation entre les 2 modèles est à ignorer ?
+     * Est-ce que la relation entre les deux modèles est à ignorer ?
      *
      * @param  Model  $fromModel
      * @param  Model  $toModel
@@ -213,7 +200,7 @@ class Builder
     }
 
     /**
-     * Est-ce que les 2 modèles sont en relation 1-1 ?
+     * Est-ce que les deux modèles sont en relation 1-1 ?
      *
      * @param  Model  $fromModel
      * @param  Model  $toModel
@@ -235,7 +222,7 @@ class Builder
     }
 
     /**
-     * Donne le nom du modèle à partir du nom de la table.
+     * Détermine et retourne le nom du modèle à partir du nom de la table.
      *
      * @param  string $table
      * @return string
