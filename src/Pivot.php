@@ -16,61 +16,53 @@ class Pivot
      *
      * @var array[Model]
      */
-    protected $relatedModels;
+    protected $relatedModels = [];
 
     /**
      * Constructeur.
      *
-     * @param  string      $table
-     * @param  string|null $foreignKey1
-     * @param  string|null $foreignKey2
+     * @param  string $table
      * @return void
      */
-    public function __construct($table, $foreignKey1 = null, $foreignKey2 = null)
+    public function __construct($table)
     {
         $this->table = $table;
-        $this->relatedModels = [];
-
-        if ($foreignKey1) {
-            $this->relatedModels[$foreignKey1] = null;
-        }
-
-        if ($foreignKey2) {
-            $this->relatedModels[$foreignKey2] = null;
-        }
     }
 
     /**
-     * Ajoute/modifie le modèle concerné par la liaison pivot pour une des clés
-     * étrangères donnée.
+     * Ajoute/modifie un des modèles concernés par la liaison pivot pour une clé
+     * étrangère donnée.
      *
      * @param  string $foreignKey
-     * @param  Model  $relatedModels
+     * @param  Model  $relatedModel
      * @return void
      */
-    public function setRelatedModel($foreignKey, Model $relatedModels)
+    public function setRelatedModel($foreignKey, Model $relatedModel)
     {
-        $this->relatedModels[$foreignKey] = $relatedModels;
+        if (count($this->relatedModels) >= 2
+            && !array_key_exists($foreignKey, $this->relatedModels)) {
+
+            return;
+        }
+
+        $this->relatedModels[$foreignKey] = $relatedModel;
     }
 
     /**
      * Ajoute les relations n-n entre les deux modèles concernés par le pivot,
-     * s'il y a bien au moins deux modèles de renseignés.
+     * s'il y a bien deux modèles de renseignés.
      *
      * @return void
      */
     public function addBelongsToManyRelationsToRelatedModels()
     {
-        $foreignKeys = array_keys($this->relatedModels);
-
-        if (count($foreignKeys) < 2
-            || empty($this->relatedModels[$foreignKeys[0]])
-            || empty($this->relatedModels[$foreignKeys[1]])) {
-
+        if (count($this->relatedModels) < 2) {
             throw new \Exception(
-                'Not enough keys in pivot table '.$this->table.' for creating many-to-many relations'
+                'Pivot table '.$this->table.' does not have enough foreign keys for determining n-n relations'
             );
         }
+
+        $foreignKeys = array_keys($this->relatedModels);
 
         // Relation n-n du modèle A vers le modèle B
         $this->relatedModels[$foreignKeys[0]]->belongsToMany(

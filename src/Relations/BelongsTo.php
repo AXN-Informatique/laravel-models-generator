@@ -62,6 +62,8 @@ class BelongsTo extends Relation
      */
     protected function buildName()
     {
-        return camel_case(str_replace('_id', '', $this->foreignKey));
+        return camel_case(
+            preg_replace('/^id\_|\_id$|(\_)id\_/', '$1', $this->foreignKey)
+        );
     }
 }

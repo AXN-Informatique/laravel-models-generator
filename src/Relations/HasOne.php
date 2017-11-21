@@ -12,6 +12,6 @@ class HasOne extends HasMany
     protected function buildName()
     {
         return lcfirst($this->relatedModel->getName())
-            . $this->buildNamePrecision();
+            . $this->getNamePrecision();
     }
 }

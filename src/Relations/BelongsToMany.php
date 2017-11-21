@@ -104,6 +104,34 @@ class BelongsToMany extends Relation
      */
     protected function buildName()
     {
-        return camel_case($this->relatedModel->getTable());
+        return camel_case($this->relatedModel->getTable())
+            . $this->getNamePrecision();
+    }
+
+    /**
+     * Retourne la précision à concaténer au nom de la relation lorsque le nom
+     * de la table pivot n'est pas standard.
+     *
+     * @return string
+     */
+    protected function getNamePrecision()
+    {
+        $snakeParentModelName = snake_case($this->parentModel->getName());
+        $snakeRelatedModelName = snake_case($this->relatedModel->getName());
+
+        $recognizedPivotTableNames = [
+            $snakeParentModelName.'_has_'.$this->relatedModel->getTable(),
+            $snakeRelatedModelName.'_has_'.$this->parentModel->getTable(),
+            $snakeParentModelName.'_'.$snakeRelatedModelName,
+            $snakeRelatedModelName.'_'.$snakeParentModelName,
+        ];
+
+        foreach ($recognizedPivotTableNames as $recognizedName) {
+            if ($this->pivotTable === $recognizedName) {
+                return '';
+            }
+        }
+
+        return 'Via'.studly_case($this->pivotTable);
     }
 }

@@ -24,13 +24,10 @@ return [
     /*
      * Liste des tables pivots pour créer les relations n-n ("belongs to many").
      *
-     * La relation n-n à faire est automatiquement déterminée à partir des deux
-     * premières clés étrangères trouvées dans le pivot. Mais il est possible
-     * d'expliciter les clés à utiliser via un tableau [pivot, fk1, fk2].
-     *
-     * Exemples :
-     *   'role_user',
-     *   ['permission_role', 'permission_id', 'role_id']
+     * La relation n-n à faire est déterminée à partir des deux premières clés
+     * étrangères trouvées dans le pivot. Les tables dont le nom contient le
+     * mot clé "_has_" seront automatiquement reconnues comme étant des pivots
+     * et vous n'avez donc pas besoin de les ajouter à cette liste.
      */
     'pivot_tables' => [
         //

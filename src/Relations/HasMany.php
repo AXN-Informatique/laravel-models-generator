@@ -12,23 +12,30 @@ class HasMany extends BelongsTo
     protected function buildName()
     {
         return camel_case($this->relatedModel->getTable())
-            . $this->buildNamePrecision();
+            . $this->getNamePrecision();
     }
 
     /**
-     * Construit la précision à concaténer au nom de la relation lorsque le nom
-     * de la clé étrangère est différent du nom de la table parente.
+     * Retourne la précision à concaténer au nom de la relation lorsque le nom
+     * de la clé étrangère n'est pas standard.
      *
      * @return string
      */
-    protected function buildNamePrecision()
+    protected function getNamePrecision()
     {
-        $precision = studly_case(str_replace('_id', '', $this->foreignKey));
+        $snakeParentModelName = snake_case($this->parentModel->getName());
 
-        if ($this->parentModel->getName() === $precision) {
-            return '';
+        $recognizedForeignKeyNames = [
+            $snakeParentModelName.'_id',
+            'id_'.$snakeParentModelName,
+        ];
+
+        foreach ($recognizedForeignKeyNames as $recognizedName) {
+            if ($this->foreignKey === $recognizedName) {
+                return '';
+            }
         }
 
-        return 'Via'.$precision;
+        return 'Via'.studly_case($this->foreignKey);
     }
 }

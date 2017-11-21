@@ -71,13 +71,9 @@ class Builder
             }
         }
 
-        // Crée les instances des pivots selon les informations renseignées dans la config
+        // Crée les instances des pivots pour les tables indiquées dans la config
         foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
-            if (is_array($table)) {
-                $this->pivots[$table[0]] = new Pivot($table[0], $table[1], $table[2]);
-            } else {
-                $this->pivots[$table] = new Pivot($table);
-            }
+            $this->pivots[$table] = new Pivot($table);
         }
 
         // Ajoute les relations 1-n et 1-1 selon les contraintes définies dans la BDD
