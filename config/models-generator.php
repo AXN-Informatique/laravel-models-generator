@@ -71,18 +71,6 @@ return [
     ],
 
     /*
-     * Permet de forcer le nom à donner à un modèle, si celui qui est déterminé
-     * automatiquement à partir du nom de la table ne convient pas (par exemple
-     * si la singularisation est erronée, comme 'sorties' qui devient 'Sorty').
-     *
-     * Exemple :
-     *   'sorties' => 'Sortie'
-     */
-    'forced_names' => [
-        //
-    ],
-
-    /*
      * Permet de regrouper des modèles dans des sous-dossiers.
      *
      * Exemples :
@@ -92,6 +80,24 @@ return [
      */
     'groupings' => [
         //
+    ],
+
+    /*
+     * Règles pour former le singulier lorsque celui-ci n'est pas correctement
+     * formé par défaut (fonction "str_singular" de Laravel). La singularisation
+     * est effectuée sur les noms de tables pour obtenir les noms de modèles.
+     *
+     * Exemples :
+     *   'ies'             => 'ie',   // uniquement la fin du mot
+     *   '^sens'           => 'sens', // mot entier
+     *   '^(bij|caill)oux' => '$1ou'  // plusieurs mots
+     */
+    'singular_rules' => [
+        'ies' => 'ie',
+        'aux' => 'al',
+        'ux' => 'u',
+        'sses' => 'sse',
+        'ches' => 'che',
     ],
 
 ];

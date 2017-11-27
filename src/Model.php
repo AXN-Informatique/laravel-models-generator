@@ -44,11 +44,11 @@ class Model
     protected $relations = [];
 
     /**
-     * Cache des contenus générés et existants.
+     * Contenu du fichier déjà existant du modèle.
      *
-     * @var array
+     * @var string
      */
-    protected $contents = [];
+    protected $fileContent;
 
     /**
      * Constructeur.
@@ -240,17 +240,12 @@ class Model
      */
     public function getContent()
     {
-        if (isset($this->contents['model'])) {
-            return $this->contents['model'];
-        }
-
-        return $this->contents['model']
-            = strtr($this->getStubContent('model'), [
-                '{{namespace}}' => $this->namespace,
-                '{{name}}'      => $this->name,
-                '{{table}}'     => $this->table,
-                '{{relations}}' => $this->getRelationsContent(),
-            ]);
+        return strtr($this->getStubContent('model'), [
+            '{{namespace}}' => $this->namespace,
+            '{{name}}'      => $this->name,
+            '{{table}}'     => $this->table,
+            '{{relations}}' => $this->getRelationsContent(),
+        ]);
     }
 
     /**
@@ -260,12 +255,8 @@ class Model
      */
     public function getRelationsContent()
     {
-        if (isset($this->contents['relations'])) {
-            return $this->contents['relations'];
-        }
-
         ksort($this->relations);
-        
+
         $content = '#GENERATED_RELATIONS';
 
         foreach ($this->relations as $name => $relation) {
@@ -274,7 +265,7 @@ class Model
 
         $content .= '#END_GENERATED_RELATIONS';
 
-        return $this->contents['relations'] = $content;
+        return $content;
     }
 
     /**
@@ -284,25 +275,20 @@ class Model
      */
     public function getFileContent()
     {
-        if (isset($this->contents['file'])) {
-            return $this->contents['file'];
+        if (!isset($this->fileContent)) {
+            $this->fileContent = file_get_contents($this->getPath());
         }
 
-        return $this->contents['file']
-            = file_get_contents($this->getPath());
+        return $this->fileContent;
     }
 
     /**
-     * Retourne le contenu des relations du fichier modèle existant. 
+     * Retourne le contenu des relations du fichier modèle existant.
      *
      * @return string
      */
     public function getFileRelationsContent()
     {
-        if (isset($this->contents['fileRelations'])) {
-            return $this->contents['fileRelations'];
-        }
-
         $hasTags = preg_match(
             '/#GENERATED_RELATIONS.*#END_GENERATED_RELATIONS/Uus',
             $this->getFileContent(),
@@ -313,7 +299,7 @@ class Model
             return '';
         }
 
-        return $this->contents['fileRelations'] = $matches[0];
+        return $matches[0];
     }
 
     /**

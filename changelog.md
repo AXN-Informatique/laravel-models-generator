@@ -1,15 +1,17 @@
 Changelog for Laravel Models Generator
 ======================================
 
-4.0.0
+4.0.0 (2017-11-27)
 ------------------
 
 - Détection automatique des tables pivot qui ont le mot clé "\_has\_".
 - Suffixage des relations belongs-to-many avec une précision si le nom du pivot n'est pas standard.
 - Retrait de la possibilité d'indiquer les clés étrangères à utiliser pour un pivot.
+- Retrait de l'option de config "forced_names".
+- Ajout de l'option de config "singular_rules".
 - Ajout de l'option --preview (-p) à la commande.
 - Tri des relations de manière globale et non plus par type de relation.
-- Les relations "has many" vers les tables pivot ne sont plus préfixées par le mot clé "pivot".
+- Les relations has-many vers les tables pivot ne sont plus préfixées par le mot clé "pivot".
 - Modification des noms de variables dans les templates.
 - Exception levée si une erreur survient lors de l'initialisation de la génération.
 - Correction de la détection des différences dans les relations des modèles pour la mise à jour.

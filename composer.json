@@ -1,22 +1,22 @@
 {
-    "name" : "axn/laravel-models-generator",
-    "description" : "Eloquent model generation from the database.",
-    "homepage" : "https://github.com/AXN-Informatique/laravel-models-generator",
-    "support" : {
-        "issues" : "https://github.com/AXN-Informatique/laravel-models-generator/issues"
+    "name": "axn/laravel-models-generator",
+    "description": "Eloquent model generation from the database.",
+    "homepage": "https://github.com/AXN-Informatique/laravel-models-generator",
+    "support": {
+        "issues": "https://github.com/AXN-Informatique/laravel-models-generator/issues"
     },
-    "authors" : [{
-            "name" : "AXN Informatique",
-            "email" : "developpement@axn.fr"
+    "authors": [{
+            "name": "AXN Informatique",
+            "email": "developpement@axn.fr"
         }
     ],
-    "license" : "MIT",
-    "require" : {
-        "illuminate/support" : "^5.0"
+    "license": "MIT",
+    "require": {
+        "illuminate/support": "^5.0"
     },
-    "autoload" : {
-        "psr-4" : {
-            "Axn\\ModelsGenerator\\" : "src/"
+    "autoload": {
+        "psr-4": {
+            "Axn\\ModelsGenerator\\": "src/"
         }
     }
 }

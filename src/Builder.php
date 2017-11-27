@@ -55,10 +55,6 @@ class Builder
      */
     public function getModels()
     {
-        if (!empty($this->models)) {
-            return $this->models;
-        }
-
         $tables = $this->driver->getTablesNames();
 
         foreach ($tables as $table) {
@@ -110,9 +106,40 @@ class Builder
 
         $modelName = $this->buildModelName($table);
         $modelNs = $this->config->get('models-generator.models_ns').$groupNs;
-        $modelPath = $this->config->get('models-generator.models_dir').$groupDir.'/'.$modelName.'.php';
+        $modelPath = str_replace(
+            ['/', '\\'],
+            DIRECTORY_SEPARATOR,
+            $this->config->get('models-generator.models_dir')."$groupDir/$modelName.php"
+        );
 
         return new Model($table, $modelName, $modelNs, $modelPath);
+    }
+
+    /**
+     * Détermine et retourne le nom du modèle à partir du nom de la table.
+     *
+     * @param  string $table
+     * @return string
+     */
+    protected function buildModelName($table)
+    {
+        $singularRules = ['^has' => 'has'] + $this->config->get('models-generator.singular_rules');
+        $modalName = '';
+
+        foreach (explode('_', $table) as $word) {
+            $singularWord = null;
+
+            foreach ($singularRules as $rule => $singular) {
+                if (preg_match('/'.$rule.'$/', $word)) {
+                    $singularWord = preg_replace('/'.$rule.'$/', $singular, $word);
+                    break;
+                }
+            }
+
+            $modalName .= ucfirst($singularWord ?: str_singular($word));
+        }
+
+        return $modalName;
     }
 
     /**
@@ -215,30 +242,5 @@ class Builder
         }
 
         return false;
-    }
-
-    /**
-     * Détermine et retourne le nom du modèle à partir du nom de la table.
-     *
-     * @param  string $table
-     * @return string
-     */
-    protected function buildModelName($table)
-    {
-        $forcedName = $this->config->get("models-generator.forced_names.$table");
-
-        if ($forcedName) {
-            return $forcedName;
-        }
-
-        $wordsFormatter = function ($value) {
-            if ($value === 'has') {
-                return 'Has';
-            }
-
-            return ucfirst(str_singular($value));
-        };
-
-        return implode('', array_map($wordsFormatter, explode('_', $table)));
     }
 }

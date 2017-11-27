@@ -12,7 +12,7 @@ class HasMany extends BelongsTo
     protected function buildName()
     {
         return camel_case($this->relatedModel->getTable())
-            . $this->getNamePrecision();
+             . $this->getNamePrecision();
     }
 
     /**

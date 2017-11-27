@@ -57,7 +57,7 @@ class GenerateCommand extends Command
         $onlyTables = $this->option('table');
         $update = $this->option('update');
         $preview = $this->option('preview');
-        
+
         if ($preview) {
             $this->error('Preview mode: files are not touched');
         }
