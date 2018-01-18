@@ -33,7 +33,7 @@ class MorphMany extends Relation
     /**
      * Retourne le nom du morph.
      *
-     * @return void
+     * @return string
      */
     public function getMorphName()
     {
