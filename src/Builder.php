@@ -56,20 +56,16 @@ class Builder
     public function getModels()
     {
         $tables = $this->driver->getTablesNames();
+        $pivotTables = $this->getConfig('pivot_tables', []);
 
         foreach ($tables as $table) {
             // Crée l'instance du modèle pour la table correspondante
             $this->models[$table] = $this->createModel($table);
 
             // Crée l'instance du pivot si la table est reconnue comme tel
-            if (strpos($table, '_has_') !== false) {
+            if (in_array($table, $pivotTables) || strpos($table, '_has_') !== false) {
                 $this->pivots[$table] = new Pivot($table);
             }
-        }
-
-        // Crée les instances des pivots pour les tables indiquées dans la config
-        foreach ($this->config->get('models-generator.pivot_tables', []) as $table) {
-            $this->pivots[$table] = new Pivot($table);
         }
 
         // Ajoute les relations 1-n et 1-1 selon les contraintes définies dans la BDD
@@ -83,7 +79,7 @@ class Builder
         }
 
         // Ajoute les relations polymorphiques selon les informations renseignées dans la config
-        foreach ($this->config->get('models-generator.polymorphic_relations', []) as $relation => $relatedTables) {
+        foreach ($this->getConfig('polymorphic_relations', []) as $relation => $relatedTables) {
             list($table, $morphName) = explode('.', $relation);
 
             $this->addPolymorphicRelations($this->models[$table], $morphName, $relatedTables);
@@ -96,23 +92,25 @@ class Builder
      * Crée une nouvelle instance de modèle pour une table donnée.
      *
      * @param  string $table
-     * @return void
+     * @return Model
      */
     protected function createModel($table)
     {
-        $group = $this->config->get("models-generator.groupings.$table");
+        $group = $this->getConfig("groupings.$table");
         $groupDir = ($group ? '/'.$group : '');
         $groupNs = str_replace('/', '\\', $groupDir);
 
         $modelName = $this->buildModelName($table);
-        $modelNs = $this->config->get('models-generator.models_ns').$groupNs;
+        $modelNs = $this->getConfig('models_ns').$groupNs;
         $modelPath = str_replace(
             ['/', '\\'],
             DIRECTORY_SEPARATOR,
-            $this->config->get('models-generator.models_dir')."$groupDir/$modelName.php"
+            $this->getConfig('models_dir')."$groupDir/$modelName.php"
         );
 
-        return new Model($table, $modelName, $modelNs, $modelPath);
+        $ignored = in_array($table, $this->getConfig('ignored_tables', []));
+
+        return new Model($table, $modelName, $modelNs, $modelPath, $ignored);
     }
 
     /**
@@ -123,7 +121,7 @@ class Builder
      */
     protected function buildModelName($table)
     {
-        $singularRules = ['^has' => 'has'] + $this->config->get('models-generator.singular_rules');
+        $singularRules = ['^has' => 'has'] + $this->getConfig('singular_rules');
         $modalName = '';
 
         foreach (explode('_', $table) as $word) {
@@ -210,7 +208,7 @@ class Builder
      */
     protected function isIgnoredRelation(Model $fromModel, Model $toModel, $foreignKey, $isBelongsTo = false)
     {
-        $ignoredRelations = $this->config->get('models-generator.ignored_relations', []);
+        $ignoredRelations = $this->getConfig('ignored_relations', []);
 
         $from = $fromModel->getTable().( $isBelongsTo ? '.'.$foreignKey : '');
         $to = $toModel->getTable().( !$isBelongsTo ? '.'.$foreignKey : '');
@@ -232,7 +230,7 @@ class Builder
      */
     protected function isOneToOneRelation(Model $fromModel, Model $toModel, $fkOrMorphName)
     {
-        $oneToOneRelations = $this->config->get('models-generator.one_to_one_relations', []);
+        $oneToOneRelations = $this->getConfig('one_to_one_relations', []);
 
         $from = $fromModel->getTable();
         $to = $toModel->getTable().'.'.$fkOrMorphName;
@@ -242,5 +240,17 @@ class Builder
         }
 
         return false;
+    }
+
+    /**
+     * Retourne la valeur d'une option de configuration.
+     *
+     * @param  string $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    protected function getConfig($key, $default = null)
+    {
+        return $this->config->get("models-generator.$key", $default);
     }
 }
