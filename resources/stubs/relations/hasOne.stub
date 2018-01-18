@@ -6,5 +6,5 @@
      */
     public function {{name}}()
     {
-        return $this->hasOne('{{relatedModel}}', '{{foreignKey}}');
+        return $this->hasOne(\{{relatedModel}}::class, '{{foreignKey}}');
     }

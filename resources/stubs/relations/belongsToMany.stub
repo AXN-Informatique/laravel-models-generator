@@ -6,5 +6,5 @@
      */
     public function {{name}}()
     {
-        return $this->belongsToMany('{{relatedModel}}', '{{pivotTable}}', '{{foreignKey}}', '{{otherKey}}');
+        return $this->belongsToMany(\{{relatedModel}}::class, '{{pivotTable}}', '{{foreignKey}}', '{{otherKey}}');
     }

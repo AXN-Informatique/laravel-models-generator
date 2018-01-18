@@ -6,5 +6,5 @@
      */
     public function {{name}}()
     {
-        return $this->morphOne('{{relatedModel}}', '{{morphName}}');
+        return $this->morphOne(\{{relatedModel}}::class, '{{morphName}}');
     }
