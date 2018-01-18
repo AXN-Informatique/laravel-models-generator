@@ -1,6 +1,13 @@
 Changelog for Laravel Models Generator
 ======================================
 
+4.1.0
+------------------
+
+- Templates des relations : syntaxe PHP 5.5 pour les classes des modèles liés.
+- Les relations vers les tables ignorées ne sont plus générées.
+- Ajout de l'option de config "update\_existing\_models".
+
 4.0.0 (2017-11-27)
 ------------------
 
