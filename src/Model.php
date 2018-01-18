@@ -37,6 +37,13 @@ class Model
     protected $path;
 
     /**
+     * Indique si le modèle est ignoré.
+     *
+     * @var bool
+     */
+    protected $ignored;
+
+    /**
      * Liste des relations.
      *
      * @var array[Relation]
@@ -57,14 +64,16 @@ class Model
      * @param  string $name
      * @param  string $namespace
      * @param  string $path
+     * @param  bool   $ignored
      * @return void
      */
-    public function __construct($table, $name, $namespace, $path)
+    public function __construct($table, $name, $namespace, $path, $ignored = false)
     {
         $this->table = $table;
         $this->name = $name;
         $this->namespace = $namespace;
         $this->path = $path;
+        $this->ignored = $ignored;
     }
 
     /**
@@ -118,6 +127,16 @@ class Model
     }
 
     /**
+     * Indique si le modèle est ignoré.
+     *
+     * @return bool
+     */
+    public function isIgnored()
+    {
+        return $this->ignored;
+    }
+
+    /**
      * Ajoute une relation BelongsTo vers un autre modèle.
      *
      * @param  Model  $relatedModel
@@ -126,6 +145,10 @@ class Model
      */
     public function belongsTo(Model $relatedModel, $foreignKey)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\BelongsTo($this, $relatedModel, $foreignKey)
         );
@@ -142,6 +165,10 @@ class Model
      */
     public function belongsToMany(Model $relatedModel, $pivotTable, $foreignKey, $otherKey)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\BelongsToMany($this, $relatedModel, $pivotTable, $foreignKey, $otherKey)
         );
@@ -156,6 +183,10 @@ class Model
      */
     public function hasMany(Model $relatedModel, $foreignKey)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\HasMany($this, $relatedModel, $foreignKey)
         );
@@ -170,6 +201,10 @@ class Model
      */
     public function hasOne(Model $relatedModel, $foreignKey)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\HasOne($this, $relatedModel, $foreignKey)
         );
@@ -184,6 +219,10 @@ class Model
      */
     public function morphMany(Model $relatedModel, $morphName)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\MorphMany($this, $relatedModel, $morphName)
         );
@@ -198,6 +237,10 @@ class Model
      */
     public function morphOne(Model $relatedModel, $morphName)
     {
+        if ($relatedModel->isIgnored()) {
+            return;
+        }
+
         $this->addRelation(
             new Relations\MorphOne($this, $relatedModel, $morphName)
         );
@@ -303,11 +346,11 @@ class Model
     }
 
     /**
-     * Génère le modèle.
+     * Crée le fichier du modèle.
      *
      * @return void
      */
-    public function generateFile()
+    public function createFile()
     {
         $dirPath = dirname($this->getPath());
 

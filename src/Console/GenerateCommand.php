@@ -51,45 +51,44 @@ class GenerateCommand extends Command
      */
     public function handle()
     {
-        // Construit les instances des modèles
-        $models = $this->builder->getModels();
-
-        $onlyTables = $this->option('table');
+        $tables = $this->option('table');
         $update = $this->option('update');
         $preview = $this->option('preview');
+
+        if (!$update) {
+            $update = $this->laravel['config']->get(
+                'models-generator.update_existing_models', false
+            );
+        }
+
+        // Construit les instances des modèles
+        $models = $this->builder->getModels();
 
         if ($preview) {
             $this->error('Preview mode: files are not touched');
         }
 
-        // Génère et/ou met à jour les modèles
-        if (!empty($onlyTables)) {
-            foreach ($onlyTables as $table) {
-                $this->generateOrUpdateModel($models[$table], $update, $preview);
-            }
-        } else {
-            $config = $this->laravel['config'];
-            $ignoredTables = $config->get('models-generator.ignored_tables', []);
+        // Lance la création/modification des fichiers
+        foreach ($models as $model) {
+            if ($model->isIgnored()
+                || $tables && !in_array($model->getTable(), $tables)) {
 
-            foreach ($models as $model) {
-                if (in_array($model->getTable(), $ignoredTables)) {
-                    continue;
-                }
-
-                $this->generateOrUpdateModel($model, $update, $preview);
+                continue;
             }
+
+            $this->updateOrCreateModelFile($model, $update, $preview);
         }
     }
 
     /**
-     * Génère ou met à jour un modèle.
+     * Crée ou met à jour le fichier d'un modèle.
      *
      * @param  Model $model
      * @param  bool  $update
      * @param  bool  $preview
      * @return void
      */
-    protected function generateOrUpdateModel(Model $model, $update, $preview)
+    protected function updateOrCreateModelFile(Model $model, $update, $preview)
     {
         // Fichier déjà existant : mise à jour des relations
         if (is_file($model->getPath())) {
@@ -106,7 +105,7 @@ class GenerateCommand extends Command
         // Sinon : création du fichier
         else {
             if (!$preview) {
-                $model->generateFile();
+                $model->createFile();
             }
 
             $this->line('<info>Created:</info> '.$model->getName().' in '.$model->getPath());
@@ -133,7 +132,7 @@ class GenerateCommand extends Command
 	protected function getOptions()
 	{
 		return [
-			['table', 't', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Generate models only for these tables.'],
+            ['table', 't', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Create/update models of these tables only.'],
             ['update', 'u', InputOption::VALUE_NONE, 'Update relations in existing models.'],
             ['preview', 'p', InputOption::VALUE_NONE, 'Displays results without touching files.'],
 		];

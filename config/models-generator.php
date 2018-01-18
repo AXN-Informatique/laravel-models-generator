@@ -12,6 +12,13 @@ return [
      */
     'models_ns' => 'App\Models',
 
+    /**
+     * Indique si, par défaut, le générateur doit mettre à jour les relations
+     * des modèles déjà existants (même comportement qu'avec l'option de commande
+     * --update ou -u).
+     */
+    'update_existing_models' => true,
+
     /*
      * Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
      */
