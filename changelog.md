@@ -1,7 +1,7 @@
 Changelog for Laravel Models Generator
 ======================================
 
-4.1.0
+4.1.0 (2018-01-18)
 ------------------
 
 - Templates des relations : syntaxe PHP 5.5 pour les classes des modèles liés.
