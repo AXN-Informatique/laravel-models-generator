@@ -1,6 +1,13 @@
 Changelog for Laravel Models Generator
 ======================================
 
+5.0.0 (2018-06-05)
+------------------
+
+- Générations des relations dans des traits et non plus directement dans les modèles.
+- Retour de la possibilité d'indiquer les clés étrangères à utiliser pour un pivot.
+- Retrait de l'option de commande --update (-u).
+
 4.1.0 (2018-01-18)
 ------------------
 

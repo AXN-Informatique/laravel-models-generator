@@ -12,12 +12,15 @@ return [
      */
     'models_ns' => 'App\Models',
 
-    /**
-     * Indique si, par défaut, le générateur doit mettre à jour les relations
-     * des modèles déjà existants (même comportement qu'avec l'option de commande
-     * --update ou -u).
+    /*
+     * Chemin vers le répertoire où doivent être générés les relations.
      */
-    'update_existing_models' => true,
+    'relations_dir' => app_path('Models/GeneratedRelations'),
+
+    /*
+     * Espace de nom des relations.
+     */
+    'relations_ns' => 'App\Models\GeneratedRelations',
 
     /*
      * Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
@@ -35,6 +38,9 @@ return [
      * étrangères trouvées dans le pivot. Les tables dont le nom contient le
      * mot clé "_has_" seront automatiquement reconnues comme étant des pivots
      * et vous n'avez donc pas besoin de les ajouter à cette liste.
+     *
+     * Vous pouvez également renseigner explicitement les clés à utiliser en
+     * écrivant : "table_pivot" => ["cle_1", "cle_2"]
      */
     'pivot_tables' => [
         //

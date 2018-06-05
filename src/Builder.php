@@ -62,8 +62,11 @@ class Builder
             // Crée l'instance du modèle pour la table correspondante
             $this->models[$table] = $this->createModel($table);
 
-            // Crée l'instance du pivot si la table est reconnue comme tel
-            if (in_array($table, $pivotTables) || strpos($table, '_has_') !== false) {
+            // Crée l'instance du pivot si la table est définie ou reconnue comme tel
+            if (array_key_exists($table, $pivotTables)) {
+                $this->pivots[$table] = new Pivot($table, $pivotTables[$table]);
+            }
+            elseif (in_array($table, $pivotTables) || strpos($table, '_has_') !== false) {
                 $this->pivots[$table] = new Pivot($table);
             }
         }
@@ -108,9 +111,31 @@ class Builder
             $this->getConfig('models_dir')."$groupDir/$modelName.php"
         );
 
+        $relations = $this->createModelRelations($modelName, $groupDir, $groupNs);
         $ignored = in_array($table, $this->getConfig('ignored_tables', []));
 
-        return new Model($table, $modelName, $modelNs, $modelPath, $ignored);
+        return new Model($table, $modelName, $modelNs, $modelPath, $relations, $ignored);
+    }
+
+    /**
+     * Crée une nouvelle instance de modèle pour une table donnée.
+     *
+     * @param  string $modelName
+     * @param  string $groupDir
+     * @param  string $groupNs
+     * @return Relations
+     */
+    protected function createModelRelations($modelName, $groupDir, $groupNs)
+    {
+        $relationsName = $modelName;
+        $relationsNs = $this->getConfig('relations_ns').$groupNs;
+        $relationsPath = str_replace(
+            ['/', '\\'],
+            DIRECTORY_SEPARATOR,
+            $this->getConfig('relations_dir')."$groupDir/$relationsName.php"
+        );
+
+        return new Relations($relationsName, $relationsNs, $relationsPath);
     }
 
     /**

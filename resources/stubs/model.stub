@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class {{name}} extends Model
 {
+    use \{{relations}};
+
     /**
      * Nom de la table associée à ce modèle.
      *
@@ -19,13 +21,4 @@ class {{name}} extends Model
      * @var array
      */
     protected $guarded = ['id'];
-
-    //
-    // NOTE IMPORTANTE !
-    //
-    // Ne pas modifier le contenu entre ces tags car rafraîchi à chaque lancement
-    // de la commande "artisan models:generate" (axn/laravel-models-generator)
-    // avec l'option "--update" (ou "-u").
-    //
-{{relations}}
 }

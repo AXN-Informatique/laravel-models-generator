@@ -22,11 +22,20 @@ class Pivot
      * Constructeur.
      *
      * @param  string $table
+     * @param  array  $foreignKeys
      * @return void
      */
-    public function __construct($table)
+    public function __construct($table, array $foreignKeys = [])
     {
         $this->table = $table;
+
+        if (isset($foreignKeys[0])) {
+            $this->relatedModels[$foreignKeys[0]] = null;
+        }
+
+        if (isset($foreignKeys[1])) {
+            $this->relatedModels[$foreignKeys[1]] = null;
+        }
     }
 
     /**

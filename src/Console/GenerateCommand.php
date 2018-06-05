@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Axn\ModelsGenerator\Model;
+use Axn\ModelsGenerator\Relations;
 use Axn\ModelsGenerator\Builder;
 
 class GenerateCommand extends Command
@@ -52,14 +53,7 @@ class GenerateCommand extends Command
     public function handle()
     {
         $tables = $this->option('table');
-        $update = $this->option('update');
         $preview = $this->option('preview');
-
-        if (!$update) {
-            $update = $this->laravel['config']->get(
-                'models-generator.update_existing_models', false
-            );
-        }
 
         // Construit les instances des modèles
         $models = $this->builder->getModels();
@@ -76,7 +70,8 @@ class GenerateCommand extends Command
                 continue;
             }
 
-            $this->updateOrCreateModelFile($model, $update, $preview);
+            $this->generateModel($model, $preview);
+            $this->generateModelRelations($model->getRelations(), $preview);
         }
     }
 
@@ -84,31 +79,51 @@ class GenerateCommand extends Command
      * Crée ou met à jour le fichier d'un modèle.
      *
      * @param  Model $model
-     * @param  bool  $update
      * @param  bool  $preview
      * @return void
      */
-    protected function updateOrCreateModelFile(Model $model, $update, $preview)
+    protected function generateModel(Model $model, $preview)
+    {
+        // Fichier déjà existant : on ne touche à rien
+        if (is_file($model->getPath())) {
+            return;
+        }
+
+        if (!$preview) {
+            $model->writeContent();
+        }
+
+        $this->line('<info>Created Model:</info> '.$model->getName().' in '.$model->getPath());
+    }
+
+    /**
+     * Crée ou met à jour le fichier des relations d'un modèle.
+     *
+     * @param  Relations $relations
+     * @param  bool      $preview
+     * @return void
+     */
+    protected function generateModelRelations(Relations $relations, $preview)
     {
         // Fichier déjà existant : mise à jour des relations
-        if (is_file($model->getPath())) {
-            if (!$update || !$model->needsUpdate()) {
+        if (is_file($relations->getPath())) {
+            if (!$relations->needsUpdate()) {
                 return;
             }
 
             if (!$preview) {
-                $model->updateFile();
+                $relations->writeContent();
             }
 
-            $this->line('<comment>Updated:</comment> '.$model->getName().' in '.$model->getPath());
+            $this->line('<comment>Updated Relations:</comment> '.$relations->getName().' in '.$relations->getPath());
         }
         // Sinon : création du fichier
         else {
             if (!$preview) {
-                $model->createFile();
+                $relations->writeContent();
             }
 
-            $this->line('<info>Created:</info> '.$model->getName().' in '.$model->getPath());
+            $this->line('<info>Created Relations:</info> '.$relations->getName().' in '.$relations->getPath());
         }
     }
 
@@ -133,7 +148,6 @@ class GenerateCommand extends Command
 	{
 		return [
             ['table', 't', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Create/update models of these tables only.'],
-            ['update', 'u', InputOption::VALUE_NONE, 'Update relations in existing models.'],
             ['preview', 'p', InputOption::VALUE_NONE, 'Displays results without touching files.'],
 		];
 	}

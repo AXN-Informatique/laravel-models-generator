@@ -44,11 +44,11 @@ class Model
     protected $ignored;
 
     /**
-     * Liste des relations.
+     * Instance des relations.
      *
-     * @var array[Relation]
+     * @var Relations
      */
-    protected $relations = [];
+    protected $relations;
 
     /**
      * Contenu du fichier déjà existant du modèle.
@@ -60,19 +60,21 @@ class Model
     /**
      * Constructeur.
      *
-     * @param  string $table
-     * @param  string $name
-     * @param  string $namespace
-     * @param  string $path
-     * @param  bool   $ignored
+     * @param  string    $table
+     * @param  string    $name
+     * @param  string    $namespace
+     * @param  string    $path
+     * @param  Relations $relations
+     * @param  bool      $ignored
      * @return void
      */
-    public function __construct($table, $name, $namespace, $path, $ignored = false)
+    public function __construct($table, $name, $namespace, $path, Relations $relations, $ignored = false)
     {
         $this->table = $table;
         $this->name = $name;
         $this->namespace = $namespace;
         $this->path = $path;
+        $this->relations = $relations;
         $this->ignored = $ignored;
     }
 
@@ -127,6 +129,16 @@ class Model
     }
 
     /**
+     * Retourne l'instance des relations du modèle'.
+     *
+     * @return string
+     */
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+
+    /**
      * Indique si le modèle est ignoré.
      *
      * @return bool
@@ -149,7 +161,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\BelongsTo($this, $relatedModel, $foreignKey)
         );
     }
@@ -169,7 +181,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\BelongsToMany($this, $relatedModel, $pivotTable, $foreignKey, $otherKey)
         );
     }
@@ -187,7 +199,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\HasMany($this, $relatedModel, $foreignKey)
         );
     }
@@ -205,7 +217,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\HasOne($this, $relatedModel, $foreignKey)
         );
     }
@@ -223,7 +235,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\MorphMany($this, $relatedModel, $morphName)
         );
     }
@@ -241,7 +253,7 @@ class Model
             return;
         }
 
-        $this->addRelation(
+        $this->relations->add(
             new Relations\MorphOne($this, $relatedModel, $morphName)
         );
     }
@@ -254,30 +266,13 @@ class Model
      */
     public function morphTo($morphName)
     {
-        $this->addRelation(
+        $this->relations->add(
             new Relations\MorphTo($this, $morphName)
         );
     }
 
     /**
-     * Ajoute une relation si celle-ci n'existe pas déjà.
-     *
-     * @param  Relations\Relation $relation
-     * @return void
-     */
-    protected function addRelation(Relations\Relation $relation)
-    {
-        if (isset($this->relations[$relation->getName()])) {
-            throw new \Exception(
-                'Relation '.$relation->getName().' is duplicated in model '.$this->getName()
-            );
-        }
-
-        $this->relations[$relation->getName()] = $relation;
-    }
-
-    /**
-     * Retourne le contenu du modèle.
+     * Retourne le contenu généré.
      *
      * @return string
      */
@@ -287,70 +282,16 @@ class Model
             '{{namespace}}' => $this->namespace,
             '{{name}}'      => $this->name,
             '{{table}}'     => $this->table,
-            '{{relations}}' => $this->getRelationsContent(),
+            '{{relations}}' => $this->relations->getTrait(),
         ]);
     }
 
     /**
-     * Retourne le contenu des relations du modèle.
-     *
-     * @return string
-     */
-    public function getRelationsContent()
-    {
-        ksort($this->relations);
-
-        $content = '#GENERATED_RELATIONS';
-
-        foreach ($this->relations as $name => $relation) {
-            $content .= $relation->getContent();
-        }
-
-        $content .= '#END_GENERATED_RELATIONS';
-
-        return $content;
-    }
-
-    /**
-     * Retourne le contenu du fichier modèle existant.
-     *
-     * @return string
-     */
-    public function getFileContent()
-    {
-        if (!isset($this->fileContent)) {
-            $this->fileContent = file_get_contents($this->getPath());
-        }
-
-        return $this->fileContent;
-    }
-
-    /**
-     * Retourne le contenu des relations du fichier modèle existant.
-     *
-     * @return string
-     */
-    public function getFileRelationsContent()
-    {
-        $hasTags = preg_match(
-            '/#GENERATED_RELATIONS.*#END_GENERATED_RELATIONS/Uus',
-            $this->getFileContent(),
-            $matches
-        );
-
-        if (!$hasTags) {
-            return '';
-        }
-
-        return $matches[0];
-    }
-
-    /**
-     * Crée le fichier du modèle.
+     * Écrit le contenu généré dans le fichier du modèle.
      *
      * @return void
      */
-    public function createFile()
+    public function writeContent()
     {
         $dirPath = dirname($this->getPath());
 
@@ -362,39 +303,5 @@ class Model
             $this->getPath(),
             $this->getContent()
         );
-    }
-
-    /**
-     * Met à jour les relations dans le fichier modèle existant.
-     *
-     * @return void
-     */
-    public function updateFile()
-    {
-        file_put_contents(
-            $this->getPath(),
-            str_replace(
-                $this->getFileRelationsContent(),
-                $this->getRelationsContent(),
-                $this->getFileContent()
-            )
-        );
-    }
-
-    /**
-     * Indique si le fichier du modèle nécessite d'être mis à jour.
-     *
-     * @return bool
-     */
-    public function needsUpdate()
-    {
-        $new = $this->getRelationsContent();
-        $old = $this->getFileRelationsContent();
-
-        $normalize = function($content) {
-            return str_replace("\r\n", "\n", $content);
-        };
-
-        return $normalize($new) !== $normalize($old);
     }
 }

@@ -1,7 +1,9 @@
 Laravel Models Generator
 ========================
 
-Ce package permet de générer les modèles Eloquent à partir de la base de données.
+Ce package permet de générer les modèles et relations Eloquent à partir de la base de données.
+
+Depuis la version 5, les relations sont générées dans des traits séparés (voir config).
 
 Installation
 ------------
@@ -32,7 +34,6 @@ La config est publiée dans `config/models-generator.php`
 Les templates sont publiés dans `resources/stubs/vendor/models-generator/`
 
 Modifier au besoin les options de config et les templates des modèles et relations.
-**Attention à ne pas toucher aux tags de remplacement dans le template du modèle !**
 
 Utilisation
 -----------
@@ -47,8 +48,6 @@ php artisan models:generate
 
 * **--table (ou -t) :** Permet de sélectionner les tables à générer. Pour renseigner
   plusieurs tables, faire : -t table1 -t table2 -t ...
-* **--update (ou -u) :** Si cette option est précisée, les relations des modèles
-  déjà existants seront mises à jour (comportement par défaut si option de config "update_existing_models" à TRUE).
 * **--preview (ou -p) :** Si cette option est précisée, les messages des opérations
   effectuées seront affichés mais les fichiers ne seront pas touchés.
 
@@ -74,7 +73,8 @@ php artisan models:generate
 - **Relation "belongs to many" :** si le nom de la table pivot n'est pas standard,
   une précision est ajoutée au nom de la relation sous la forme "Via{nomTablePivot}".
 - Les tables **dont le nom contient le mot clé "_has_"** sont automatiquement reconnues
-  comme étant des pivots donc pas besoin de les renseigner dans la config.
+  comme étant des pivots donc pas besoin de les renseigner dans la config, sauf s'il y a
+  besoin de renseigner explicitement les clés à utiliser.
 
 Exemple :
 
