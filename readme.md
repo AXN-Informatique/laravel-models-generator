@@ -8,16 +8,21 @@ Depuis la version 5, les relations sont générées dans des traits séparés (v
 Installation
 ------------
 
-Inclure le package avec Composer :
+Install the package with Composer:
 
 ```sh
 composer require axn/laravel-models-generator
 ```
 
-Ajouter le service provider au tableau des providers dans `config/app.php` :
+In Laravel 5.5 the service provider will automatically get registered.
+In older versions of the framework just add the service provider
+to the array of providers in `config/app.php`:
 
 ```php
-'Axn\ModelsGenerator\ServiceProvider',
+'providers' => [
+    // ...
+    Axn\ModelsGenerator\ServiceProvider::class,
+],
 ```
 
 Publier si besoin la config et les templates (stubs) du package via les commandes :
