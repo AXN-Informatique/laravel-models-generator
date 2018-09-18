@@ -18,5 +18,12 @@
         "psr-4": {
             "Axn\\ModelsGenerator\\": "src/"
         }
+    },
+    "extra" : {
+        "laravel" : {
+            "providers" : [
+                "Axn\\ModelsGenerator\\ServiceProvider"
+            ]
+        }
     }
 }
