@@ -1,6 +1,12 @@
 Changelog for Laravel Models Generator
 ======================================
 
+5.3.0 (2019-01-07)
+------------------
+
+- Support du groupement automatique de modèles via préfixe sur les tables.
+- Possibilité d'ignorer la détection automatique d'un pivot.
+
 5.2.1 (2018-09-18)
 ------------------
 

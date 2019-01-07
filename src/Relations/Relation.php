@@ -49,7 +49,7 @@ abstract class Relation
     {
         return $this->parentModel;
     }
-    
+
     /**
      * Retourne l'instance du modèle associé.
      *

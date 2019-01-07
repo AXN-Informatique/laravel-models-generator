@@ -41,6 +41,9 @@ return [
      *
      * Vous pouvez également renseigner explicitement les clés à utiliser en
      * écrivant : "table_pivot" => ["cle_1", "cle_2"]
+     *
+     * Et si vous ne souhaitez pas qu'une table avec le mot clé "_has_" soit
+     * reconnue comme pivot, écrivez : "a_has_b" => null
      */
     'pivot_tables' => [
         //
@@ -85,11 +88,16 @@ return [
 
     /*
      * Permet de regrouper des modèles dans des sous-dossiers.
+     * Un groupe peut être spécifié pour une table ou bien selon un préfixe.
      *
      * Exemples :
      *   'users'     => 'Auth',
      *   'roles'     => 'Auth',
-     *   'role_user' => 'Auth/Pivots'
+     *   'role_user' => 'Auth/Pivots',
+     
+     *   // tous les modèles dont la table commence par "aut_" iront
+     *   // dans le sous-dossier "Auth"
+     *   'aut*'      => 'Auth'
      */
     'groupings' => [
         //
@@ -106,7 +114,11 @@ return [
      *   '^(bij|caill)oux' => '$1ou'  // plusieurs mots
      */
     'singular_rules' => [
+        '^sens' => 'sens',
+        '^taux' => 'taux',
+        '^indices' => 'indice',
         'ies' => 'ie',
+        'ixes' => 'ixe',
         'aux' => 'al',
         'ux' => 'u',
         'sses' => 'sse',

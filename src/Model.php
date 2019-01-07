@@ -16,6 +16,13 @@ class Model
     protected $table;
 
     /**
+     * Préfixe de la table concernée.
+     *
+     * @var string
+     */
+    protected $prefix;
+
+    /**
      * Nom de classe du modèle.
      *
      * @var string
@@ -61,6 +68,7 @@ class Model
      * Constructeur.
      *
      * @param  string    $table
+     * @param  string    $prefix
      * @param  string    $name
      * @param  string    $namespace
      * @param  string    $path
@@ -68,9 +76,10 @@ class Model
      * @param  bool      $ignored
      * @return void
      */
-    public function __construct($table, $name, $namespace, $path, Relations $relations, $ignored = false)
+    public function __construct($table, $prefix, $name, $namespace, $path, Relations $relations, $ignored = false)
     {
         $this->table = $table;
+        $this->prefix = $prefix;
         $this->name = $name;
         $this->namespace = $namespace;
         $this->path = $path;
@@ -86,6 +95,30 @@ class Model
     public function getTable()
     {
         return $this->table;
+    }
+
+    /**
+     * Retourne le préfixe de la table.
+     *
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * Retourne le nom de la table sans le préfixe.
+     *
+     * @return string
+     */
+    public function getTableWithoutPrefix()
+    {
+        if (!$this->prefix) {
+            return $this->table;
+        }
+
+        return substr($this->table, strlen($this->prefix) + 1);
     }
 
     /**

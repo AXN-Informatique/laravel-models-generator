@@ -64,7 +64,9 @@ class Builder
 
             // Crée l'instance du pivot si la table est définie ou reconnue comme tel
             if (array_key_exists($table, $pivotTables)) {
-                $this->pivots[$table] = new Pivot($table, $pivotTables[$table]);
+                if ($pivotTables[$table] !== null) {
+                    $this->pivots[$table] = new Pivot($table, $pivotTables[$table]);
+                }
             }
             elseif (in_array($table, $pivotTables) || strpos($table, '_has_') !== false) {
                 $this->pivots[$table] = new Pivot($table);
@@ -99,11 +101,11 @@ class Builder
      */
     protected function createModel($table)
     {
-        $group = $this->getConfig("groupings.$table");
+        list($group, $prefix) = $this->buildModelGroup($table);
         $groupDir = ($group ? '/'.$group : '');
         $groupNs = str_replace('/', '\\', $groupDir);
 
-        $modelName = $this->buildModelName($table);
+        $modelName = $this->buildModelName($table, $prefix);
         $modelNs = $this->getConfig('models_ns').$groupNs;
         $modelPath = str_replace(
             ['/', '\\'],
@@ -114,7 +116,7 @@ class Builder
         $relations = $this->createModelRelations($modelName, $groupDir, $groupNs);
         $ignored = in_array($table, $this->getConfig('ignored_tables', []));
 
-        return new Model($table, $modelName, $modelNs, $modelPath, $relations, $ignored);
+        return new Model($table, $prefix, $modelName, $modelNs, $modelPath, $relations, $ignored);
     }
 
     /**
@@ -139,17 +141,43 @@ class Builder
     }
 
     /**
-     * Détermine et retourne le nom du modèle à partir du nom de la table.
+     * Undocumented function
      *
      * @param  string $table
+     * @return array
+     */
+    protected function buildModelGroup($table)
+    {
+        if ($group = $this->getConfig("groupings.$table")) {
+            return [$group, null];
+        }
+
+        list($prefix) = explode('_', $table);
+
+        if ($group = $this->getConfig("groupings.{$prefix}*")) {
+            return [$group, $prefix];
+        }
+
+        return [null, null];
+    }
+
+    /**
+     * Détermine et retourne le nom du modèle à partir du nom de la table.
+     *
+     * @param  string      $table
+     * @param  string|null $prefix
      * @return string
      */
-    protected function buildModelName($table)
+    protected function buildModelName($table, $prefix)
     {
         $singularRules = ['^has' => 'has'] + $this->getConfig('singular_rules');
         $modalName = '';
 
-        foreach (explode('_', $table) as $word) {
+        foreach (explode('_', $table) as $index => $word) {
+            if ($index === 0 && !empty($prefix) && $word === $prefix) {
+                continue;
+            }
+
             $singularWord = null;
 
             foreach ($singularRules as $rule => $singular) {
