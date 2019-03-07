@@ -1,5 +1,10 @@
-Changelog for Laravel Models Generator
-======================================
+Changelog
+=========
+
+5.4.0 (2019-03-07)
+------------------
+
+- Add support for Laravel 5.8
 
 5.3.0 (2019-01-07)
 ------------------
