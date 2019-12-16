@@ -1,6 +1,7 @@
 
     /**
-     * Relation "belongs to" vers la table `{{relatedTable}}`.
+     * "belongs to" relation to `{{relatedTable}}` table
+     * via `{{foreignKey}}` field.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

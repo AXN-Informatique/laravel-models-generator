@@ -1,6 +1,7 @@
 
     /**
-     * Relation "has many" vers la table `{{relatedTable}}`.
+     * "has many" relation to `{{relatedTable}}` table
+     * via `{{foreignKey}}` field.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

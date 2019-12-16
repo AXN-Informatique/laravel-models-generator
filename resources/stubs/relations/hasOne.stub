@@ -1,6 +1,7 @@
 
     /**
-     * Relation "has one" vers la table `{{relatedTable}}`.
+     * "has one" relation to `{{relatedTable}}` table
+     * via `{{foreignKey}}` field.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */

@@ -44,13 +44,6 @@ class Model
     protected $path;
 
     /**
-     * Indique si le modèle est ignoré.
-     *
-     * @var bool
-     */
-    protected $ignored;
-
-    /**
      * Instance des relations.
      *
      * @var Relations
@@ -58,11 +51,19 @@ class Model
     protected $relations;
 
     /**
-     * Contenu du fichier déjà existant du modèle.
+     * Indique si la table associée au modèle possède les champs `created_at`
+     * et `updated_at`.
      *
-     * @var string
+     * @var bool
      */
-    protected $fileContent;
+    protected $timestamped = true;
+
+    /**
+     * Indique si la génération du modèle doit être ignorée.
+     *
+     * @var bool
+     */
+    protected $ignored = false;
 
     /**
      * Constructeur.
@@ -73,10 +74,10 @@ class Model
      * @param  string    $namespace
      * @param  string    $path
      * @param  Relations $relations
-     * @param  bool      $ignored
      * @return void
      */
-    public function __construct($table, $prefix, $name, $namespace, $path, Relations $relations, $ignored = false)
+    public function __construct(
+        $table, $prefix, $name, $namespace, $path, Relations $relations)
     {
         $this->table = $table;
         $this->prefix = $prefix;
@@ -84,7 +85,6 @@ class Model
         $this->namespace = $namespace;
         $this->path = $path;
         $this->relations = $relations;
-        $this->ignored = $ignored;
     }
 
     /**
@@ -95,16 +95,6 @@ class Model
     public function getTable()
     {
         return $this->table;
-    }
-
-    /**
-     * Retourne le préfixe de la table.
-     *
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
     }
 
     /**
@@ -129,16 +119,6 @@ class Model
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Retourne le namespace du modèle.
-     *
-     * @return string
-     */
-    public function getNamespace()
-    {
-        return $this->namespace;
     }
 
     /**
@@ -172,13 +152,35 @@ class Model
     }
 
     /**
-     * Indique si le modèle est ignoré.
+     * Indique si la génération du modèle doit être ignorée.
      *
      * @return bool
      */
     public function isIgnored()
     {
         return $this->ignored;
+    }
+
+    /**
+     * Modifie la valeur de l'attribut "timestamped".
+     *
+     * @param  bool $timestamped
+     * @return void
+     */
+    public function setTimestamped($timestamped)
+    {
+        $this->timestamped = (bool) $timestamped;
+    }
+
+    /**
+     * Modifie la valeur de l'attribut "ignored".
+     *
+     * @param  bool $ignored
+     * @return void
+     */
+    public function setIgnored($ignored)
+    {
+        $this->ignored = (bool) $ignored;
     }
 
     /**
@@ -196,26 +198,6 @@ class Model
 
         $this->relations->add(
             new Relations\BelongsTo($this, $relatedModel, $foreignKey)
-        );
-    }
-
-    /**
-     * Ajoute une relation BelongsToMany vers un autre modèle.
-     *
-     * @param  Model  $relatedModel
-     * @param  string $pivotTable
-     * @param  string $foreignKey
-     * @param  string $otherKey
-     * @return void
-     */
-    public function belongsToMany(Model $relatedModel, $pivotTable, $foreignKey, $otherKey)
-    {
-        if ($relatedModel->isIgnored()) {
-            return;
-        }
-
-        $this->relations->add(
-            new Relations\BelongsToMany($this, $relatedModel, $pivotTable, $foreignKey, $otherKey)
         );
     }
 
@@ -256,55 +238,6 @@ class Model
     }
 
     /**
-     * Ajoute une relation MorphMany vers un autre modèle.
-     *
-     * @param  Model  $relatedModel
-     * @param  string $morphName
-     * @return void
-     */
-    public function morphMany(Model $relatedModel, $morphName)
-    {
-        if ($relatedModel->isIgnored()) {
-            return;
-        }
-
-        $this->relations->add(
-            new Relations\MorphMany($this, $relatedModel, $morphName)
-        );
-    }
-
-    /**
-     * Ajoute une relation MorphOne vers un autre modèle.
-     *
-     * @param  Model  $relatedModel
-     * @param  string $morphName
-     * @return void
-     */
-    public function morphOne(Model $relatedModel, $morphName)
-    {
-        if ($relatedModel->isIgnored()) {
-            return;
-        }
-
-        $this->relations->add(
-            new Relations\MorphOne($this, $relatedModel, $morphName)
-        );
-    }
-
-    /**
-     * Ajoute une relation MorphTo.
-     *
-     * @param  string $morphName
-     * @return void
-     */
-    public function morphTo($morphName)
-    {
-        $this->relations->add(
-            new Relations\MorphTo($this, $morphName)
-        );
-    }
-
-    /**
      * Retourne le contenu généré.
      *
      * @return string
@@ -312,10 +245,11 @@ class Model
     public function getContent()
     {
         return strtr($this->getStubContent('model'), [
-            '{{namespace}}' => $this->namespace,
-            '{{name}}'      => $this->name,
-            '{{table}}'     => $this->table,
-            '{{relations}}' => $this->relations->getTrait(),
+            '{{namespace}}'  => $this->namespace,
+            '{{name}}'       => $this->name,
+            '{{table}}'      => $this->table,
+            '{{relations}}'  => $this->relations->getTrait(),
+            '{{timestamps}}' => $this->timestamped ? 'true' : 'false',
         ]);
     }
 

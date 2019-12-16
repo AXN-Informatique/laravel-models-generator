@@ -3,27 +3,27 @@
 return [
 
     /*
-     * Chemin vers le répertoire où doivent être générés les modèles.
+     * Path to models directory.
      */
     'models_dir' => app_path('Models'),
 
     /*
-     * Espace de nom des modèles.
+     * Models namespaces
      */
     'models_ns' => 'App\Models',
 
     /*
-     * Chemin vers le répertoire où doivent être générés les relations.
+     * Path to generated relations (traits) directory.
      */
     'relations_dir' => app_path('Models/GeneratedRelations'),
 
     /*
-     * Espace de nom des relations.
+     * Generated relations traits namespaces.
      */
     'relations_ns' => 'App\Models\GeneratedRelations',
 
     /*
-     * Liste des tables pour lesquelles on ne souhaite pas générer de modèle.
+     * Tables for which we don't want to generate models.
      */
     'ignored_tables' => [
         'cache',
@@ -32,71 +32,49 @@ return [
     ],
 
     /*
-     * Liste des tables pivots pour créer les relations n-n ("belongs to many").
+     * Relations we don't want to be generated, like:
      *
-     * La relation n-n à faire est déterminée à partir des deux premières clés
-     * étrangères trouvées dans le pivot. Les tables dont le nom contient le
-     * mot clé "_has_" seront automatiquement reconnues comme étant des pivots
-     * et vous n'avez donc pas besoin de les ajouter à cette liste.
+     *   'table1:table2.table1_id' ("table1" has one or many "table2")
+     *   'table2.table1_id:table1' ("table2" belongs to "table1")
      *
-     * Vous pouvez également renseigner explicitement les clés à utiliser en
-     * écrivant : "table_pivot" => ["cle_1", "cle_2"]
+     * Examples:
      *
-     * Et si vous ne souhaitez pas qu'une table avec le mot clé "_has_" soit
-     * reconnue comme pivot, écrivez : "a_has_b" => null
+     *   'users:salaries.user_id', // ignore User::salaries()
+     *   'salaries.user_id:users', // ignore Salarie::user()
+     *   '*.created_by:users',     // ignore *::createdBy()
+     *   'users:*.created_by       // ignore User::*ViaCreatedBy()
      */
-    'pivot_tables' => [
-        //
+    'ignored_relations' => [
+        '*.created_by:users',
+        '*.updated_by:users',
+        'users:*.created_by',
+        'users:*.updated_by',
     ],
 
     /*
-     * Liste des relations polymorphiques sous la forme :
-     *   'morph_table.morph_name' => ['table1', 'table2', ...]
+     * "has one" relations instead of "has many", like:
      *
-     * Exemple :
-     *   'photos.imageable' => ['staff', 'orders']
-     */
-    'polymorphic_relations' => [
-        //
-    ],
-
-    /*
-     * Liste des relations 1-1 ("has one" ou "morph one") sous la forme :
      *   'table1:table2.table1_id'  ("table1" has one "table2")
-     *   'table1:table2.morph_name' ("table1" morph one "table2")
      *
-     * Exemples :
+     * Examples:
+     *
      *   'users:salaries.user_id', // "users" has one "salaries"
-     *   'staff:photos.imageable'  // "staff" morph one "photos"
      */
     'one_to_one_relations' => [
         //
     ],
 
     /*
-     * Liste des relations que l'on ne souhaite pas générer, sous la forme :
-     *   'table1:table2.table1_id' ("table1" has one or many "table2")
-     *   'table2.table1_id:table1' ("table2" belongs to "table1")
+     * For grouping models in sub-directories.
      *
-     * Exemples :
-     *   'users:salaries.user_id', // ignorer "users" has one/many "salaries"
-     *   'salaries.user_id:users'  // ignorer "salaries" belongs to "users"
-     */
-    'ignored_relations' => [
-        //
-    ],
-
-    /*
-     * Permet de regrouper des modèles dans des sous-dossiers.
-     * Un groupe peut être spécifié pour une table ou bien selon un préfixe.
+     * Examples:
      *
-     * Exemples :
      *   'users'     => 'Auth',
      *   'roles'     => 'Auth',
      *   'role_user' => 'Auth/Pivots',
-     
-     *   // tous les modèles dont la table commence par "aut_" iront
-     *   // dans le sous-dossier "Auth"
+     *
+     *   // Using prefix: all tables beginning with "aut_" will be generated
+     *   // in the "Auth" sub-directory
      *   'aut*'      => 'Auth'
      */
     'groupings' => [
@@ -104,16 +82,17 @@ return [
     ],
 
     /*
-     * Règles pour former le singulier lorsque celui-ci n'est pas correctement
-     * formé par défaut (fonction "str_singular" de Laravel). La singularisation
-     * est effectuée sur les noms de tables pour obtenir les noms de modèles.
+     * Rules for conversion to singular when this is not done correctly by default.
+     * Singularization is done on tables names to get corresponding models names.
      *
-     * Exemples :
-     *   'ies'             => 'ie',   // uniquement la fin du mot
-     *   '^sens'           => 'sens', // mot entier
-     *   '^(bij|caill)oux' => '$1ou'  // plusieurs mots
+     * Examples:
+     *
+     *   'ies'             => 'ie',   // only on the end of the word
+     *   '^sens'           => 'sens', // on the whole word
+     *   '^(bij|caill)oux' => '$1ou'  // on many words
      */
     'singular_rules' => [
+        '^has' => 'has',
         '^sens' => 'sens',
         '^taux' => 'taux',
         '^indices' => 'indice',

@@ -85,4 +85,18 @@ class MysqlDriver implements Driver
 
         return $constraintsInfo;
     }
+
+    /**
+     * Indique si la table contient les champs "created_at" et "updated_at".
+     *
+     * @param  string $table
+     * @return bool
+     */
+    public function hasTimestampsColumns($table)
+    {
+        return preg_match(
+            '/`(created|updated)_at` timestamp/Uis',
+            $this->getSqlCreateTable($table)
+        );
+    }
 }

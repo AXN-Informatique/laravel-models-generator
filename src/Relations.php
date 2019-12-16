@@ -62,16 +62,6 @@ class Relations
     }
 
     /**
-     * Retourne le namespace du trait.
-     *
-     * @return string
-     */
-    public function getNamespace()
-    {
-        return $this->namespace;
-    }
-
-    /**
      * Retourne le nom complet du trait.
      *
      * @return string

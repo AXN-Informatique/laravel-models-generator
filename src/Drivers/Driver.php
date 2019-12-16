@@ -26,4 +26,12 @@ interface Driver
      * @return array[string]
      */
     public function getTableConstraintsInfo($table);
+
+    /**
+     * Indique si la table contient les champs "created_at" et "updated_at".
+     *
+     * @param  string $table
+     * @return bool
+     */
+    public function hasTimestampsColumns($table);
 }

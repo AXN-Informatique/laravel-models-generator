@@ -29,13 +29,6 @@ class Builder
     protected $models = [];
 
     /**
-     * Liste des instances des pivots par nom de table.
-     *
-     * @var array[Pivot]
-     */
-    protected $pivots = [];
-
-    /**
      * Constructeur.
      *
      * @param  Config $config
@@ -56,21 +49,10 @@ class Builder
     public function getModels()
     {
         $tables = $this->driver->getTablesNames();
-        $pivotTables = $this->getConfig('pivot_tables', []);
 
         foreach ($tables as $table) {
             // Crée l'instance du modèle pour la table correspondante
             $this->models[$table] = $this->createModel($table);
-
-            // Crée l'instance du pivot si la table est définie ou reconnue comme tel
-            if (array_key_exists($table, $pivotTables)) {
-                if ($pivotTables[$table] !== null) {
-                    $this->pivots[$table] = new Pivot($table, $pivotTables[$table]);
-                }
-            }
-            elseif (in_array($table, $pivotTables) || strpos($table, '_has_') !== false) {
-                $this->pivots[$table] = new Pivot($table);
-            }
         }
 
         // Ajoute les relations 1-n et 1-1 selon les contraintes définies dans la BDD
@@ -78,23 +60,11 @@ class Builder
             $this->addRelationsAccordingToConstraints($model);
         }
 
-        // Ajoute les relations n-n via les instances des pivots
-        foreach ($this->pivots as $pivot) {
-            $pivot->addBelongsToManyRelationsToRelatedModels();
-        }
-
-        // Ajoute les relations polymorphiques selon les informations renseignées dans la config
-        foreach ($this->getConfig('polymorphic_relations', []) as $relation => $relatedTables) {
-            list($table, $morphName) = explode('.', $relation);
-
-            $this->addPolymorphicRelations($this->models[$table], $morphName, $relatedTables);
-        }
-
         return $this->models;
     }
 
     /**
-     * Crée une nouvelle instance de modèle pour une table donnée.
+     * Crée une nouvelle instance Model pour une table donnée.
      *
      * @param  string $table
      * @return Model
@@ -114,13 +84,22 @@ class Builder
         );
 
         $relations = $this->createModelRelations($modelName, $groupDir, $groupNs);
-        $ignored = in_array($table, $this->getConfig('ignored_tables', []));
 
-        return new Model($table, $prefix, $modelName, $modelNs, $modelPath, $relations, $ignored);
+        $model = new Model($table, $prefix, $modelName, $modelNs, $modelPath, $relations);
+
+        if (!$this->driver->hasTimestampsColumns($table)) {
+            $model->setTimestamped(false);
+        }
+
+        if (in_array($table, $this->getConfig('ignored_tables', []))) {
+            $model->setIgnored(true);
+        }
+
+        return $model;
     }
 
     /**
-     * Crée une nouvelle instance de modèle pour une table donnée.
+     * Crée une nouvelle instance Relations pour un modèle donné.
      *
      * @param  string $modelName
      * @param  string $groupDir
@@ -129,7 +108,7 @@ class Builder
      */
     protected function createModelRelations($modelName, $groupDir, $groupNs)
     {
-        $relationsName = $modelName;
+        $relationsName = $modelName.'Relations';
         $relationsNs = $this->getConfig('relations_ns').$groupNs;
         $relationsPath = str_replace(
             ['/', '\\'],
@@ -170,7 +149,7 @@ class Builder
      */
     protected function buildModelName($table, $prefix)
     {
-        $singularRules = ['^has' => 'has'] + $this->getConfig('singular_rules');
+        $singularRules = $this->getConfig('singular_rules');
         $modalName = '';
 
         foreach (explode('_', $table) as $index => $word) {
@@ -195,9 +174,7 @@ class Builder
 
     /**
      * Ajoute les relations HasOne, HasMany et BelongsTo à un modèle selon les
-     * contraintes de clés étrangères définies dans la BDD. Si pivot, le modèle
-     * associé en BelongsTo est ajouté à l'instance Pivot correspondante pour
-     * l'ajout des relations BelongsToMany dans un second temps.
+     * contraintes de clés étrangères définies dans la BDD.
      *
      * @param  Model $model
      * @return void
@@ -221,33 +198,7 @@ class Builder
             if (!$this->isIgnoredRelation($model, $relatedModel, $foreignKey, true)) {
                 $model->belongsTo($relatedModel, $foreignKey);
             }
-
-            if (isset($this->pivots[$model->getTable()])) {
-                $this->pivots[$model->getTable()]->setRelatedModel($foreignKey, $relatedModel);
-            }
         }
-    }
-
-    /**
-     * Ajoute les relations MorphOne, MorphMany et MorphTo à un modèle.
-     *
-     * @param  string $morphName
-     * @param  array  $relatedTables
-     * @return void
-     */
-    protected function addPolymorphicRelations(Model $model, $morphName, array $relatedTables)
-    {
-        foreach ($relatedTables as $relatedTable) {
-            $relatedModel = $this->models[$relatedTable];
-
-            if ($this->isOneToOneRelation($relatedModel, $model, $morphName)) {
-                $relatedModel->morphOne($model, $morphName);
-            } else {
-                $relatedModel->morphMany($model, $morphName);
-            }
-        }
-
-        $model->morphTo($morphName);
     }
 
     /**
@@ -263,11 +214,21 @@ class Builder
     {
         $ignoredRelations = $this->getConfig('ignored_relations', []);
 
-        $from = $fromModel->getTable().( $isBelongsTo ? '.'.$foreignKey : '');
-        $to = $toModel->getTable().( !$isBelongsTo ? '.'.$foreignKey : '');
+        $fromTable = $fromModel->getTable();
+        $toTable = $toModel->getTable();
 
-        if (in_array("$from:$to", $ignoredRelations)) {
-            return true;
+        if ($isBelongsTo) {
+            if (in_array("$fromTable.$foreignKey:$toTable", $ignoredRelations)
+                || in_array("*.$foreignKey:$toTable", $ignoredRelations)) {
+
+                return true;
+            }
+        } else {
+            if (in_array("$fromTable:$toTable.$foreignKey", $ignoredRelations)
+                || in_array("$fromTable:*.$foreignKey", $ignoredRelations)) {
+
+                return true;
+            }
         }
 
         return false;
@@ -278,15 +239,15 @@ class Builder
      *
      * @param  Model  $fromModel
      * @param  Model  $toModel
-     * @param  string $fkOrMorphName
+     * @param  string $foreignKey
      * @return bool
      */
-    protected function isOneToOneRelation(Model $fromModel, Model $toModel, $fkOrMorphName)
+    protected function isOneToOneRelation(Model $fromModel, Model $toModel, $foreignKey)
     {
         $oneToOneRelations = $this->getConfig('one_to_one_relations', []);
 
         $from = $fromModel->getTable();
-        $to = $toModel->getTable().'.'.$fkOrMorphName;
+        $to = $toModel->getTable().'.'.$foreignKey;
 
         if (in_array("$from:$to", $oneToOneRelations)) {
             return true;
