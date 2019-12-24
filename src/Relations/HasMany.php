@@ -11,7 +11,7 @@ class HasMany extends BelongsTo
      */
     protected function buildName()
     {
-        return camel_case($this->relatedModel->getTableWithoutPrefix())
+        return camel_case($this->relatedModel->getTableWithoutGroup())
              . $this->getNamePrecision();
     }
 

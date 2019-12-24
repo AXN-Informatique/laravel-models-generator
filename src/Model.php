@@ -16,11 +16,11 @@ class Model
     protected $table;
 
     /**
-     * Préfixe de la table concernée.
+     * Nom de la table concernée, sans la partie servant à grouper.
      *
      * @var string
      */
-    protected $prefix;
+    protected $tableWithoutGroup;
 
     /**
      * Nom de classe du modèle.
@@ -69,7 +69,7 @@ class Model
      * Constructeur.
      *
      * @param  string    $table
-     * @param  string    $prefix
+     * @param  string    $tableWithoutGroup
      * @param  string    $name
      * @param  string    $namespace
      * @param  string    $path
@@ -77,10 +77,10 @@ class Model
      * @return void
      */
     public function __construct(
-        $table, $prefix, $name, $namespace, $path, Relations $relations)
+        $table, $tableWithoutGroup, $name, $namespace, $path, Relations $relations)
     {
         $this->table = $table;
-        $this->prefix = $prefix;
+        $this->tableWithoutGroup = $tableWithoutGroup;
         $this->name = $name;
         $this->namespace = $namespace;
         $this->path = $path;
@@ -98,17 +98,13 @@ class Model
     }
 
     /**
-     * Retourne le nom de la table sans le préfixe.
+     * Retourne le nom de la table, sans la partie servant à grouper.
      *
      * @return string
      */
-    public function getTableWithoutPrefix()
+    public function getTableWithoutGroup()
     {
-        if (!$this->prefix) {
-            return $this->table;
-        }
-
-        return substr($this->table, strlen($this->prefix) + 1);
+        return $this->tableWithoutGroup;
     }
 
     /**

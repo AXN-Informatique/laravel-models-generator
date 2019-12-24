@@ -71,11 +71,11 @@ class Builder
      */
     protected function createModel($table)
     {
-        list($group, $prefix) = $this->buildModelGroup($table);
-        $groupDir = ($group ? '/'.$group : '');
+        list($groupDir, $tableWithoutGroup) = $this->getGroupingInfo($table);
+        $groupDir = ($groupDir ? '/'.$groupDir : '');
         $groupNs = str_replace('/', '\\', $groupDir);
 
-        $modelName = $this->buildModelName($table, $prefix);
+        $modelName = $this->buildModelName($tableWithoutGroup);
         $modelNs = $this->getConfig('models_ns').$groupNs;
         $modelPath = str_replace(
             ['/', '\\'],
@@ -85,7 +85,7 @@ class Builder
 
         $relations = $this->createModelRelations($modelName, $groupDir, $groupNs);
 
-        $model = new Model($table, $prefix, $modelName, $modelNs, $modelPath, $relations);
+        $model = new Model($table, $tableWithoutGroup, $modelName, $modelNs, $modelPath, $relations);
 
         if (!$this->driver->hasTimestampsColumns($table)) {
             $model->setTimestamped(false);
@@ -120,43 +120,42 @@ class Builder
     }
 
     /**
-     * Undocumented function
+     * Retourne les informations sur le groupement, à savoir :
+     *   - le sous-répertoire du groupe
+     *   - le nom de la table sans la partie servant à grouper
      *
      * @param  string $table
      * @return array
      */
-    protected function buildModelGroup($table)
+    protected function getGroupingInfo($table)
     {
-        if ($group = $this->getConfig("groupings.$table")) {
-            return [$group, null];
+        if ($groupDir = $this->getConfig("groupings.$table")) {
+            return [$groupDir, $table];
         }
 
-        list($prefix) = explode('_', $table);
+        foreach ($this->getConfig('groupings') as $groupKey => $groupDir) {
+            if (strpos($groupKey, '^') === 0
+                && preg_match('/'.$groupKey.'_(.+)/', $table, $matches)) {
 
-        if ($group = $this->getConfig("groupings.{$prefix}*")) {
-            return [$group, $prefix];
+                return [$groupDir, $matches[1]];
+            }
         }
 
-        return [null, null];
+        return [null, $table];
     }
 
     /**
      * Détermine et retourne le nom du modèle à partir du nom de la table.
      *
-     * @param  string      $table
-     * @param  string|null $prefix
+     * @param  string $tableWithoutGroup
      * @return string
      */
-    protected function buildModelName($table, $prefix)
+    protected function buildModelName($tableWithoutGroup)
     {
         $singularRules = $this->getConfig('singular_rules');
         $modalName = '';
 
-        foreach (explode('_', $table) as $index => $word) {
-            if ($index === 0 && !empty($prefix) && $word === $prefix) {
-                continue;
-            }
-
+        foreach (explode('_', $tableWithoutGroup) as $index => $word) {
             $singularWord = null;
 
             foreach ($singularRules as $rule => $singular) {

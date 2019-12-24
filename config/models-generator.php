@@ -3,22 +3,22 @@
 return [
 
     /*
-     * Path to models directory.
+     * Path to the models directory.
      */
     'models_dir' => app_path('Models'),
 
     /*
-     * Models namespaces
+     * Base namespace of the models.
      */
     'models_ns' => 'App\Models',
 
     /*
-     * Path to generated relations (traits) directory.
+     * Path to the generated relations directory.
      */
     'relations_dir' => app_path('Models/GeneratedRelations'),
 
     /*
-     * Generated relations traits namespaces.
+     * Base namespace of the generated relations.
      */
     'relations_ns' => 'App\Models\GeneratedRelations',
 
@@ -32,17 +32,17 @@ return [
     ],
 
     /*
-     * Relations we don't want to be generated, like:
+     * Relations we don't want to be generated, specified like this:
      *
-     *   'table1:table2.table1_id' ("table1" has one or many "table2")
-     *   'table2.table1_id:table1' ("table2" belongs to "table1")
+     *   'table1:table2.table1_id'  // "table1" has one/many "table2" via "table1_id"
+     *   'table2.table1_id:table1'  // "table2" belongs to "table1" via "table1_id"
      *
-     * Examples:
+     * For example:
      *
-     *   'users:salaries.user_id', // ignore User::salaries()
-     *   'salaries.user_id:users', // ignore Salarie::user()
-     *   '*.created_by:users',     // ignore *::createdBy()
-     *   'users:*.created_by       // ignore User::*ViaCreatedBy()
+     *   'users:salaries.user_id'   // ignore User::salaries()
+     *   'salaries.user_id:users'   // ignore Salarie::user()
+     *   '*.created_by:users '      // ignore (all)::createdBy()
+     *   'users:*.created_by'       // ignore User::(all)ViaCreatedBy()
      */
     'ignored_relations' => [
         '*.created_by:users',
@@ -52,44 +52,55 @@ return [
     ],
 
     /*
-     * "has one" relations instead of "has many", like:
+     * "has one" relations instead of "has many", specified like this:
      *
-     *   'table1:table2.table1_id'  ("table1" has one "table2")
+     *   'table1:table2.table1_id'  // "table1" has one "table2"
      *
-     * Examples:
+     * For example:
      *
-     *   'users:salaries.user_id', // "users" has one "salaries"
+     *   'users:salaries.user_id'   // User::salarie()
      */
     'one_to_one_relations' => [
         //
     ],
 
     /*
-     * For grouping models in sub-directories.
+     * Models grouping in sub-directories, specified like this:
      *
-     * Examples:
+     *   'table'  => 'sub/directory/relative/path'
+     *   '^group' => 'sub/directory/relative/path'
      *
-     *   'users'     => 'Auth',
-     *   'roles'     => 'Auth',
-     *   'role_user' => 'Auth/Pivots',
+     * Use the "^group" syntax if the group name is specified in the beginning
+     * of the table name. Thus, all the targeted tables will be generated in the
+     * specified sub-directory, without the group word in the model name or the
+     * relations names.
      *
-     *   // Using prefix: all tables beginning with "aut_" will be generated
-     *   // in the "Auth" sub-directory
-     *   'aut*'      => 'Auth'
+     * For example:
+     *
+     *   'users'     => 'Auth'         // App\Models\Auth\User
+     *   'roles'     => 'Auth'         // App\Models\Auth\Role
+     *   'role_user' => 'Auth/Pivots'  // App\Models\Auth\Pivots\RoleUser
+     *
+     *   // Or using prefix:
+     *   '^auth'     => 'Auth'  // "auth_user"      -> App\Models\Auth\User
+     *                          // "auth_role"      -> App\Models\Auth\Role
+     *                          // "auth_role_user" -> App\Models\Auth\RoleUser
      */
     'groupings' => [
         //
     ],
 
     /*
-     * Rules for conversion to singular when this is not done correctly by default.
-     * Singularization is done on tables names to get corresponding models names.
+     * Rules for converting plural to singular if not correctly done by default.
      *
-     * Examples:
+     * Singularization is done on each word of the table name to get corresponding
+     * model name.
      *
-     *   'ies'             => 'ie',   // only on the end of the word
-     *   '^sens'           => 'sens', // on the whole word
-     *   '^(bij|caill)oux' => '$1ou'  // on many words
+     * For example:
+     *
+     *   'ies'             => 'ie'    // all the words ending by "ies"
+     *   '^sens'           => 'sens'  // only the word "sens"
+     *   '^(bij|caill)oux' => '$1ou'  // only the words "bijoux" and "cailloux"
      */
     'singular_rules' => [
         '^has' => 'has',
