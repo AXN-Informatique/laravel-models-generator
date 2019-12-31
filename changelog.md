@@ -1,10 +1,23 @@
 Changelog
 =========
 
+6.0.0 (2019-12-31)
+------------------
+
+- Add support for Laravel 6
+- Drop support for Laravel 5.7 and older
+- Drop support for "belongs to many" relationships
+- Drop support for Polymorphic relationships
+- English translation of readme, config and comments in stubs
+- Added detection of the presence of timestamps (created_at and updated_at)
+- Ability to ignore relationships globally
+
+
 5.4.0 (2019-03-07)
 ------------------
 
 - Add support for Laravel 5.8
+
 
 5.3.0 (2019-01-07)
 ------------------
@@ -12,20 +25,24 @@ Changelog
 - Support du groupement automatique de modèles via préfixe sur les tables.
 - Possibilité d'ignorer la détection automatique d'un pivot.
 
+
 5.2.1 (2018-09-18)
 ------------------
 
 - Add missing Laravel extra in composer.json
+
 
 5.2.0 (2018-09-07)
 ------------------
 
 - Add Laravel 5.7.* support
 
+
 5.1.0 (2018-07-04)
 ------------------
 
 - Add Laravel 5.5.* and 5.6.* support
+
 
 5.0.0 (2018-06-05)
 ------------------
@@ -34,12 +51,14 @@ Changelog
 - Retour de la possibilité d'indiquer les clés étrangères à utiliser pour un pivot.
 - Retrait de l'option de commande --update (-u).
 
+
 4.1.0 (2018-01-18)
 ------------------
 
 - Templates des relations : syntaxe PHP 5.5 pour les classes des modèles liés.
 - Les relations vers les tables ignorées ne sont plus générées.
 - Ajout de l'option de config "update\_existing\_models".
+
 
 4.0.0 (2017-11-27)
 ------------------
@@ -57,15 +76,18 @@ Changelog
 - Correction de la détection des différences dans les relations des modèles pour la mise à jour.
 - Refactoring complet du code.
 
+
 3.1.0 (2017-02-01)
 ------------------
 
 - Laravel 5.4.x support
 
+
 3.0.1 (2016-11-02)
 ------------------
 
 - Move to Github
+
 
 3.0.0 (2016-05-13)
 ------------------
@@ -87,17 +109,20 @@ Changelog
 - Utilisation de l'IoC pour instancier le driver.
 - Réécriture des commentaires dans la config.
 
+
 2.0.3 (2016-03-22)
 ------------------
 
 - Source code released with the MIT license
 - Added license file
 
+
 2.0.2 (2016-01-14)
 ------------------
 
 - Valeurs par défaut pour les récupérations des options de config.
 - Déplacement des options de config obligatoires au début du fichier de config.
+
 
 2.0.1 (2016-01-04)
 ------------------
@@ -125,6 +150,7 @@ Changelog
 - Modification des tags pour la commande "vendor:publish".
 - Refactoring/nettoyage du code.
 
+
 1.1.1 (2015-11-23)
 ------------------
 
@@ -133,6 +159,7 @@ Changelog
 - Commande "models:list" : affichage de la trace si exception catched.
 - Nettoyage commentaires.
 
+
 1.1.0 (2015-10-26)
 ------------------
 
@@ -140,11 +167,13 @@ Changelog
 - Ajout d'une option de config pour définir les relations polymorphiques.
 - Les templates des contrats et façades peuvent maintenant être surchargés.
 
+
 1.0.1 (2015-10-07)
 ------------------
 
 - Commande "models:list" : vérification que chaque fichier trouvé contient bien une classe modèle (= instanciable).
 - Changements mineurs au niveau des couleurs en console.
+
 
 1.0.0 (2015-09-08)
 ------------------
