@@ -1,6 +1,12 @@
 Changelog
 =========
 
+6.0.1 (2020-01-23)
+------------------
+
+- Use Illuminate\Support\Str class instead of helpers
+
+
 6.0.0 (2019-12-31)
 ------------------
 

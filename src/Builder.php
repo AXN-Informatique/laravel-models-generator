@@ -2,8 +2,9 @@
 
 namespace Axn\ModelsGenerator;
 
-use Illuminate\Config\Repository as Config;
 use Axn\ModelsGenerator\Drivers\Driver;
+use Illuminate\Config\Repository as Config;
+use Illuminate\Support\Str;
 
 class Builder
 {
@@ -165,7 +166,7 @@ class Builder
                 }
             }
 
-            $modalName .= ucfirst($singularWord ?: str_singular($word));
+            $modalName .= ucfirst($singularWord ?: Str::singular($word));
         }
 
         return $modalName;

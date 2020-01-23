@@ -2,6 +2,8 @@
 
 namespace Axn\ModelsGenerator\Relations;
 
+use Illuminate\Support\Str;
+
 class HasMany extends BelongsTo
 {
     /**
@@ -11,7 +13,7 @@ class HasMany extends BelongsTo
      */
     protected function buildName()
     {
-        return camel_case($this->relatedModel->getTableWithoutGroup())
+        return Str::camel($this->relatedModel->getTableWithoutGroup())
              . $this->getNamePrecision();
     }
 
@@ -23,7 +25,7 @@ class HasMany extends BelongsTo
      */
     protected function getNamePrecision()
     {
-        $snakeParentModelName = snake_case($this->parentModel->getName());
+        $snakeParentModelName = Str::snake($this->parentModel->getName());
 
         $recognizedForeignKeyNames = [
             $snakeParentModelName.'_id',
@@ -36,6 +38,6 @@ class HasMany extends BelongsTo
             }
         }
 
-        return 'Via'.studly_case($this->foreignKey);
+        return 'Via'.Str::studly($this->foreignKey);
     }
 }

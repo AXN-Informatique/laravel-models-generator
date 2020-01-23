@@ -3,6 +3,7 @@
 namespace Axn\ModelsGenerator\Relations;
 
 use Axn\ModelsGenerator\Model;
+use Illuminate\Support\Str;
 
 class BelongsTo extends Relation
 {
@@ -62,7 +63,7 @@ class BelongsTo extends Relation
      */
     protected function buildName()
     {
-        return camel_case(
+        return Str::camel(
             preg_replace(
                 '/^id_|_id$|(_)id_/', '$1',
                 $this->foreignKey
