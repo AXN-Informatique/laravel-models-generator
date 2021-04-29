@@ -134,7 +134,7 @@ class Builder
             return [$groupDir, $table];
         }
 
-        foreach ($this->getConfig('groupings') as $groupKey => $groupDir) {
+        foreach ($this->getConfig('groupings', []) as $groupKey => $groupDir) {
             if (strpos($groupKey, '^') === 0
                 && preg_match('/'.$groupKey.'_(.+)/', $table, $matches)) {
 
@@ -153,7 +153,7 @@ class Builder
      */
     protected function buildModelName($tableWithoutGroup)
     {
-        $singularRules = $this->getConfig('singular_rules');
+        $singularRules = $this->getConfig('singular_rules', []);
         $modalName = '';
 
         foreach (explode('_', $tableWithoutGroup) as $index => $word) {
