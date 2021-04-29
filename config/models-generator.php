@@ -27,6 +27,9 @@ return [
      */
     'ignored_tables' => [
         'cache',
+        'failed_jobs',
+        'jobs',
+        'job_batches',
         'migrations',
         'sessions',
     ],
@@ -109,6 +112,7 @@ return [
         '^indices' => 'indice',
         'ies' => 'ie',
         'ixes' => 'ixe',
+        'eaux' => 'eau',
         'aux' => 'al',
         'ux' => 'u',
         'sses' => 'sse',
