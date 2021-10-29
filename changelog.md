@@ -1,6 +1,14 @@
 Changelog
 =========
 
+6.3.0 (2020-10-29)
+------------------
+
+- Update default model stub for GeneratedRelations trait
+- Highlighting of the warning message in the generated traits
+- Config comments in Laravelish style
+
+
 6.2.0 (2020-09-25)
 ------------------
 

@@ -245,6 +245,7 @@ class Model
             '{{name}}'       => $this->name,
             '{{table}}'      => $this->table,
             '{{relations}}'  => $this->relations->getTrait(),
+            '{{traitName}}'  => $this->relations->getName(),
             '{{timestamps}}' => $this->timestamped ? 'true' : 'false',
         ]);
     }

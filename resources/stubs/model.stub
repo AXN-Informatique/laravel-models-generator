@@ -2,11 +2,12 @@
 
 namespace {{namespace}};
 
+use {{relations}};
 use Illuminate\Database\Eloquent\Model;
 
 class {{name}} extends Model
 {
-    use \{{relations}};
+    use {{traitName}};
 
     /**
      * The table associated with the model.
