@@ -1,7 +1,13 @@
 Changelog
 =========
 
-6.3.0 (2020-10-29)
+6.4.0 (2022-01-05)
+------------------
+
+- Uses doctrine/dbal instead of custom driver for getting DB schema information
+
+
+6.3.0 (2021-10-29)
 ------------------
 
 - Update default model stub for GeneratedRelations trait

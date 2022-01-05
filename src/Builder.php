@@ -2,7 +2,8 @@
 
 namespace Axn\ModelsGenerator;
 
-use Axn\ModelsGenerator\Drivers\Driver;
+use Doctrine\DBAL\Schema\AbstractSchemaManager as DoctrineSchemaManager;
+use Doctrine\DBAL\Types\DateTimeType;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Support\Str;
 
@@ -16,11 +17,11 @@ class Builder
     protected $config;
 
     /**
-     * Driver de connexion à la BDD pour la récupération d'informations sur les tables.
+     * SchemaManager de Doctrine/DBAL pour la récupération d'informations sur les tables.
      *
-     * @var Driver
+     * @var DoctrineSchemaManager
      */
-    protected $driver;
+    protected $doctrineSchemaManager;
 
     /**
      * Liste des instances des modèles par nom de table.
@@ -33,13 +34,13 @@ class Builder
      * Constructeur.
      *
      * @param  Config $config
-     * @param  Driver $driver
+     * @param  DoctrineSchemaManager $doctrineSchemaManager
      * @return void
      */
-    public function __construct(Config $config, Driver $driver)
+    public function __construct(Config $config, DoctrineSchemaManager $doctrineSchemaManager)
     {
         $this->config = $config;
-        $this->driver = $driver;
+        $this->doctrineSchemaManager = $doctrineSchemaManager;
     }
 
     /**
@@ -49,11 +50,9 @@ class Builder
      */
     public function getModels()
     {
-        $tables = $this->driver->getTablesNames();
-
-        foreach ($tables as $table) {
+        foreach ($this->doctrineSchemaManager->listTables() as $table) {
             // Crée l'instance du modèle pour la table correspondante
-            $this->models[$table] = $this->createModel($table);
+            $this->models[$table->getName()] = $this->createModel($table->getName());
         }
 
         // Ajoute les relations 1-n et 1-1 selon les contraintes définies dans la BDD
@@ -88,7 +87,7 @@ class Builder
 
         $model = new Model($table, $tableWithoutGroup, $modelName, $modelNs, $modelPath, $relations);
 
-        if (!$this->driver->hasTimestampsColumns($table)) {
+        if (!$this->hasTimestampsColumns($table)) {
             $model->setTimestamped(false);
         }
 
@@ -181,11 +180,11 @@ class Builder
      */
     protected function addRelationsAccordingToConstraints(Model $model)
     {
-        $constraintsInfo = $this->driver->getTableConstraintsInfo($model->getTable());
+        $constraints = $this->doctrineSchemaManager->listTableForeignKeys($model->getTable());
 
-        foreach ($constraintsInfo as $constraint) {
-            $relatedModel = $this->models[$constraint['relatedTable']];
-            $foreignKey = $constraint['foreignKey'];
+        foreach ($constraints as $constraint) {
+            $relatedModel = $this->models[$constraint->getForeignTableName()];
+            $foreignKey = $constraint->getLocalColumns()[0];
 
             if (!$this->isIgnoredRelation($relatedModel, $model, $foreignKey)) {
                 if ($this->isOneToOneRelation($relatedModel, $model, $foreignKey)) {
@@ -250,6 +249,25 @@ class Builder
         $to = $toModel->getTable().'.'.$foreignKey;
 
         if (in_array("$from:$to", $oneToOneRelations)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Est-ce que la table possède les champs "created_at" et "updated_at" ?
+     *
+     * @param  string $table
+     * @return bool
+     */
+    protected function hasTimestampsColumns($table)
+    {
+        $columns = $this->doctrineSchemaManager->listTableColumns($table);
+
+        if (isset($columns['created_at']) && $columns['created_at']->getType() instanceof DateTimeType
+            && isset($columns['updated_at']) && $columns['updated_at']->getType() instanceof DateTimeType) {
+
             return true;
         }
 

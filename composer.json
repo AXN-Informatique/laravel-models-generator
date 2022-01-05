@@ -12,7 +12,8 @@
     ],
     "license": "MIT",
     "require": {
-        "illuminate/support": "~5.8 || ^6.0 || ^7.0 || ^8.0"
+        "illuminate/support": "~5.8 || ^6.0 || ^7.0 || ^8.0",
+        "doctrine/dbal": "^2.13|^3.1"
     },
     "autoload": {
         "psr-4": {

@@ -14,11 +14,10 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->app->singleton('command.models.generate', function($app) {
-            $db = $app['db.connection'];
-            $driverClass = __NAMESPACE__.'\Drivers\\'.ucfirst($db->getDriverName()).'Driver';
-            $driver = new $driverClass($db->getPdo());
-
-            $builder = new Builder($app['config'], $driver);
+            $builder = new Builder(
+                $app['config'],
+                $app['db.connection']->getDoctrineSchemaManager()
+            );
 
             return new Console\GenerateCommand($builder);
         });
