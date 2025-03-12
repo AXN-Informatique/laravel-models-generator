@@ -1,6 +1,17 @@
 Changelog
 =========
 
+7.0.0 (2025-03-12)
+------------------
+
+- Add support for Laravel 11
+- Add support for Doctrine DBAL 4.x
+- Drop support of Laravel prior to 10
+- Drop support of PHP prior to 8.2
+- Drop support of Doctrine DBAL prior to 3.4
+- Uppercase changelog and readme filename
+
+
 6.6.1 (2024-11-30)
 ------------------
 
