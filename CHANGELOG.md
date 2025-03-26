@@ -1,6 +1,13 @@
 Changelog
 =========
 
+8.0.0 (2025-03-26)
+------------------
+
+- Drop support of Laravel prior to 12
+- Drop support of Doctrine DBAL prior to 4
+
+
 7.0.0 (2025-03-12)
 ------------------
 
